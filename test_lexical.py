@@ -107,7 +107,8 @@ def tokenize_and_categorize(input_program):
                 ctoken = "OR_ASSIGN"
             elif token == "^=":
                 ctoken = "XOR_ASSIGN"
-            # SPECIAL CHARACTERS / SYMBOLS
+                
+        # SPECIAL CHARACTERS / SYMBOLS
         elif token in special_characters:
             if token == "!":
                 ctoken = "EXSYM"
@@ -145,6 +146,15 @@ def tokenize_and_categorize(input_program):
                 ctoken = "SQOUTATION"
             elif token == '"':
                 ctoken = "DQOUTATION"
+            elif token == ",":
+                ctoken = "SQOUTATION"
+            elif token == '.':
+                ctoken = "DQOUTATION"
+            elif token == "/":
+                ctoken = "SQOUTATION"
+            elif token == '\':
+                ctoken = "DQOUTATION"
+                
             else:
                 ctoken = "INVALID"
 

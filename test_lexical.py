@@ -9,6 +9,7 @@ def tokenize_and_categorize(input_program):
     operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
     delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
     numerals = set("0123456789")
+    general = set(["ERROR", "NUM", "EOF", "IDENTIFIER", "CHAR", "STRING"])
 
     # Split input_program into tokens
     input_program_tokens = input_program.split()
@@ -122,7 +123,23 @@ def tokenize_and_categorize(input_program):
                 ctoken = "LMULTI_COMMENT"
             elif token == " ":    
                 ctoken = "SPACE"
-                
+            else:
+                ctoken = "INVALID"
+            
+        # GENERAL
+        elif token in general:
+            if token == "ERROR":
+                ctoken = "ERROR"
+            elif token == "NUM":
+                ctoken = "NUM"
+            elif token == "EOF":
+                ctoken = "EOF" 
+            elif token == "IDENTIFIER":    
+                ctoken = "IDENTIFIER"
+            elif token == "CHAR":    
+                ctoken = "CHAR"
+            elif token == "STRING":    
+                ctoken = "STRING"
             else:
                 ctoken = "INVALID"
                                                           

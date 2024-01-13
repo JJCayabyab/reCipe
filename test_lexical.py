@@ -25,14 +25,15 @@ def tokenize_and_categorize(input_program):
             if token == "int":
                 ctoken = "integer"
             # Add more conditions for other keywords
-            elif token in operators:
-                ctoken = "OPERATOR"
-            elif token in special_characters:
-                ctoken = "SPECIAL_CHARACTER"
-            elif token.isdigit():
-                ctoken = "NUMERAL"
-            else:
-                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+        elif token in operators:
+            if token == "++":
+                ctoken = "increment"
+        elif token in special_characters:
+            ctoken = "SPECIAL_CHARACTER"
+        elif token.isdigit():
+            ctoken = "NUMERAL"
+        else:
+            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
         lexeme_token_pairs.append((lexeme, ctoken))
 

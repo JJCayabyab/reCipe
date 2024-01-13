@@ -139,10 +139,7 @@ def tokenize_and_categorize(input_program):
             elif token == '.':
                 ctoken = "DQOUTATION"
             elif token == "/":
-                ctoken = "SQOUTATION"
-            elif token == "\":
-                ctoken = "DQOUTATION"
-                
+                ctoken = "SQOUTATION"   
             else:
                 ctoken = "INVALID"
 

@@ -45,7 +45,14 @@ def tokenize_and_categorize(input_program):
             
         #OPERATORS
         elif token in operators:
-            ctoken = "OPERATOR"
+            if token == "++":
+                ctoken = "INCREMENT"
+            elif token == "+":
+                next_token_index = input_program_tokens.index(token) + 1
+                if next_token_index < len(input_program_tokens) and input_program_tokens[next_token_index].isdigit():
+                    ctoken = "PLUS"
+                else:
+                    ctoken = "UNKNOWN"
         elif token in special_characters:
             ctoken = "SPECIAL_CHARACTER"
         elif token.isdigit():

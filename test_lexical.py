@@ -6,8 +6,8 @@ def tokenize_and_categorize(input_program):
                     "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                     "volatile", "while", "string", "class", "struct", "include"])
 
-    operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
-    delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "}", "'", '"', ";"])
+    operators = set(["=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "++", "--", "!", "||", "&&", "==", "!=", ">", "<", ">=", "<="])
+    delimeters = set([";", "(", ")", "[", "]", "{", "}"])
     numerals = set("0123456789")
 
     # Split input_program into tokens
@@ -47,12 +47,20 @@ def tokenize_and_categorize(input_program):
             
         # OPERATORS
         elif token in operators:
-            if token == "++":
-                ctoken = "INC"
+            if token == "=":
+                ctoken = "ASSIGN"
+            elif token == "+=":
+                ctoken = "ADD_ASSIGN"
+            elif token == "-=":
+                ctoken = "MINUS_ASSIGN"
+            elif token == "*=":
+                ctoken = "MULTI_ASSIGN"
+            elif token == "/=":
+                ctoken = "DIV_ASSIGN"
+            elif token == "%=":
+                ctoken = "MODULO_ASSIGN"
             elif token == "+":
-                ctoken = "PLUS"
-            elif token == "--":
-                ctoken = "DEC"
+                ctoken = "ADD"
             elif token == "-":
                 ctoken = "MINUS"
             elif token == "*":
@@ -60,82 +68,52 @@ def tokenize_and_categorize(input_program):
             elif token == "/":
                 ctoken = "DIV"
             elif token == "%":
-                ctoken = "MOD"
-            elif token == "=":
-                ctoken = "EQUALS"
+                ctoken = "MODULO"
+            elif token == "+":
+                ctoken = "POSITIVE"
+            elif token == "-":
+                ctoken = "NEGATIVE"
+            elif token == "++":
+                ctoken = "INCRE"
+            elif token == "--":
+                ctoken = "DECRE"
+            elif token == "!":
+                ctoken = "LOGIC_NOT"
+            elif token == "||":
+                ctoken = "LOGIC_OR"
+            elif token == "&&":
+                ctoken = "LOGIC_AND"
             elif token == "==":
-                ctoken = "EQUALITY"
-            elif token == "+=":
-                ctoken = "PLUS_ASSIGN"
-            elif token == "-=":
-                ctoken = "MINUS_ASSIGN"
-            elif token == "*=":
-                ctoken = "MULTI_ASSIGN"
-            elif token == "/=":
-                ctoken = "DIV_ASSIGN"
-            elif token == ">":
-                ctoken = "GREATER"
-            elif token == "<":
-                ctoken = "LESS"
+                ctoken = "EQUAL_TO"
             elif token == "!=":
-                ctoken = "NOT_EQUAL"
+                ctoken = "NOT_EQUAL_TO"
+            elif token == ">":
+                ctoken = "GREATER_THAN"
+            elif token == "<":
+                ctoken = "LESS_THAN"
             elif token == ">=":
-                ctoken = "GREATER_OR_EQUAL"
+                ctoken = "GREAT_OR_EQUAL"
             elif token == "<=":
                 ctoken = "LESS_OR_EQUAL"
-            elif token == "&&":
-                ctoken = "LOG_AND"
-            elif token == "||":
-                ctoken = "LOG_OR"
             elif token != operators:
                 ctoken = "INVALID"
                 
         # SPECIAL CHARACTERS / SYMBOLS
         elif token in delimeters:
-            if token == "!":
-                ctoken = "EXSYM"
-            elif token == "@":
-                ctoken = "ATSYM"
-            elif token == "#":
-                ctoken = "HASHSYM"
-            elif token == "$":
-                ctoken = "DOSYM"
-            elif token == "%":
-                ctoken = "PERSYM"
-            elif token == "^":
-                ctoken = "CARSYM"
-            elif token == "&":
-                ctoken = "ANDSYM"
-            elif token == "*":
-                ctoken = "ASTSYM"
+            if token == ";":
+                ctoken = "SEMICOLON"
             elif token == "(":
                 ctoken = "LPAREN"
             elif token == ")":
-                ctoken = "RPAREN"
-            elif token == "-":
-                ctoken = "HPSYM"  
-            elif token == "_":    
-                ctoken = "UDSYM"  
+                ctoken = "RPAREN" 
             elif token == "[":    
                 ctoken = "LBRAC"
             elif token == "]":    
                 ctoken = "RBRAC"
-            elif token == ":":
-                ctoken = "COLON"
-            elif token == ";":
-                ctoken = "SEMICOLON"
-            elif token == "'":
-                ctoken = "SQOUT"
-            elif token == '"':
-                ctoken = "DQOUT"
-            elif token == ",":
-                ctoken = "COMMA"
-            elif token == '.':
-                ctoken = "DOTSYM"
-            elif token == "/":
-                ctoken = "SLSYM"
-            elif token == " ":
-                ctoken = "SPACE"
+            elif token == "{":    
+                ctoken = "LCURLBRAC"
+            elif token == "}":    
+                ctoken = "RCURLBRAC"
                 
             else:
                 ctoken = "INVALID"

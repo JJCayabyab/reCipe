@@ -45,13 +45,13 @@ def tokenize_and_categorize(input_program):
             
         #OPERATORS
         elif token in operators:
-                ctoken = "OPERATOR"
+            ctoken = "OPERATOR"
         elif token in special_characters:
-                ctoken = "SPECIAL_CHARACTER"
+            ctoken = "SPECIAL_CHARACTER"
         elif token.isdigit():
-                ctoken = "NUMERAL"
+            ctoken = "NUMERAL"
         else:
-                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
         lexeme_token_pairs.append((lexeme, ctoken))
 

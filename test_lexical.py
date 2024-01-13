@@ -7,7 +7,7 @@ def tokenize_and_categorize(input_program):
                     "volatile", "while", "string", "class", "struct", "include"])
 
     operators = set(["=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "++", "--", "!", "||", "&&", "==", "!=", ">", "<", ">=", "<="])
-    delimeters = set([";", "(", ")", "[", "]", "{", "}"])
+    delimeters = set([";", "(", ")", "[", "]", "{", "}", "//", "/*", "*/", " "])
     numerals = set("0123456789")
 
     # Split input_program into tokens
@@ -114,6 +114,14 @@ def tokenize_and_categorize(input_program):
                 ctoken = "LCURLBRAC"
             elif token == "}":    
                 ctoken = "RCURLBRAC"
+            elif token == "//":    
+                ctoken = "SINGLE_COMMENT"
+            elif token == "/*:    
+                ctoken = "RMULTI_COMMENT"
+            elif token == "*/":    
+                ctoken = "LMULTI_COMMENT"
+            elif token == " ":    
+                ctoken = "SPACE"
                 
             else:
                 ctoken = "INVALID"

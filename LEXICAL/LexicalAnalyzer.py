@@ -1,20 +1,18 @@
-import re
-
-
 class LexicalAnalyzer:
-    # Token row
-    lin_num = 1
+    def __init__(self):
+        # Token row
+        self.lin_num = 1
 
     def tokenize(self, code):
         rules = [
-            ('MAIN', r'main'),          # main
-            ('INT', r'int'),            # int
-            ('FLOAT', r'float'),        # float
-            ('IF', r'if'),              # if
-            ('ELSE', r'else'),          # else
-            ('WHILE', r'while'),        # while
-            ('READ', r'read'),          # read
-            ('PRINT', r'print'),        # print
+            ('MAIN', 'main'),          # main
+            ('INT', 'int'),            # int
+            ('FLOAT', 'float'),        # float
+            ('IF', 'if'),              # if
+            ('ELSE', 'else'),          # else
+            ('WHILE', 'while'),        # while
+            ('READ', 'read'),          # read
+            ('PRINT', 'print'),        # print
             ('LBRACKET', r'\('),        # (
             ('RBRACKET', r'\)'),        # )
             ('LBRACE', r'\{'),          # {
@@ -35,41 +33,58 @@ class LexicalAnalyzer:
             ('MULT', r'\*'),            # *
             ('DIV', r'\/'),             # /
             ('ID', r'[a-zA-Z]\w*'),     # IDENTIFIERS
-            ('FLOAT_CONST', r'\d(\d)*\.\d(\d)*'),   # FLOAT
-            ('INTEGER_CONST', r'\d(\d)*'),          # INT
+            ('FLOAT_CONST', r'\d+(\.\d+)?'),   # FLOAT
+            ('INTEGER_CONST', r'\d+'),          # INT
             ('NEWLINE', r'\n'),         # NEW LINE
             ('SKIP', r'[ \t]+'),        # SPACE and TABS
-            ('MISMATCH', r'.'),         # ANOTHER CHARACTER
         ]
 
-        tokens_join = '|'.join('(?P<%s>%s)' % x for x in rules)
-        lin_start = 0
+        tokens = []
+        lexemes = []
+        rows = []
+        columns = []
 
-        # Lists of output for the program
-        token = []
-        lexeme = []
-        row = []
-        column = []
+        i = 0
+        while i < len(code):
+            match = None
+            for token_type, pattern in rules:
+                if code[i:].startswith(pattern):
+                    match = (token_type, code[i:i+len(pattern)])
+                    break
 
-        # It analyzes the code to find the lexemes and their respective Tokens
-        for m in re.finditer(tokens_join, code):
-            token_type = m.lastgroup
-            token_lexeme = m.group(token_type)
-
-            if token_type == 'NEWLINE':
-                lin_start = m.end()
-                self.lin_num += 1
-            elif token_type == 'SKIP':
-                continue
-            elif token_type == 'MISMATCH':
-                raise RuntimeError('%r unexpected on line %d' % (token_lexeme, self.lin_num))
-            else:
-                    col = m.start() - lin_start
-                    column.append(col)
-                    token.append(token_type)
-                    lexeme.append(token_lexeme)
-                    row.append(self.lin_num)
+            if match:
+                token_type, token_lexeme = match
+                if token_type == 'NEWLINE':
+                    i += 1  # Skip newline character
+                elif token_type != 'SKIP':
+                    col = i
+                    row = self.lin_num
+                    tokens.append(token_type)
+                    lexemes.append(token_lexeme)
+                    rows.append(row)
+                    columns.append(col)
                     # To print information about a Token
-                    print('Token = {0}, Lexeme = \'{1}\', Row = {2}, Column = {3}'.format(token_type, token_lexeme, self.lin_num, col))
+                    print('Token = {0}, Lexeme = \'{1}\', Row = {2}, Column = {3}'.format(token_type, token_lexeme, row, col))
 
-        return token, lexeme, row, column
+                i += len(token_lexeme)
+            else:
+                raise RuntimeError('%r unexpected on line %d' % (code[i], self.lin_num))
+                i += 1
+
+        return tokens, lexemes, rows, columns
+
+# Example usage:
+code = """
+main {
+    int x = 10;
+    float y = 20.5;
+    if (x > y) {
+        print("x is greater than y");
+    } else {
+        print("y is greater than x");
+    }
+}
+"""
+
+lexer = LexicalAnalyzer()
+lexer.tokenize(code)

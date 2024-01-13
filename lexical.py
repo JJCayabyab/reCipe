@@ -7,7 +7,7 @@ def tokenize_and_categorize(input_program):
                     "volatile", "while", "string", "class", "struc", "include"])
     
     operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
-    special_characters = set(r"[@&~!#$\^|{}]:;<>,.'()")
+    special_characters = set("[]]@&~!#$\^|{}:;<>,.'()")
     numerals = set("0123456789")
 
     # Tokenize the input program

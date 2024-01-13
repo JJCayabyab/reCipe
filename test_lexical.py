@@ -6,7 +6,8 @@ def tokenize_and_categorize(input_program):
                     "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                     "volatile", "while", "string", "class", "struct", "include"])
 
-    operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
+    operators = set(["++", "--", "+", "-", "*", "/", "%", "==", "=", "+=", "-=", "*=", "/=", ">", "<", ">=", "<=", 
+                     "&&", "||", "!", "&", "|", "&=", "|="])
     special_characters = set("[]@&~!#$\^|{}:;<>,.'()")
     numerals = set("0123456789")
 
@@ -151,7 +152,6 @@ def tokenize_and_categorize(input_program):
                 ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
         lexeme_token_pairs.append((lexeme, ctoken))
-    
     #
     
     # Print the table

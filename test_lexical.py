@@ -93,20 +93,8 @@ def tokenize_and_categorize(input_program):
                 ctoken = "BITWISE_AND"
             elif token == "|":
                 ctoken = "BITWISE_OR"
-            elif token == "^":
-                ctoken = "BITWISE_XOR"
-            elif token == "~":
-                ctoken = "COMPLEMENT"
-            elif token == "<<":
-                ctoken = "LEFT_SHIFT"
-            elif token == ">>":
-                ctoken = "RIGHT_SHIFT"
-            elif token == "&=":
-                ctoken = "AND_ASSIGN"
-            elif token == "|=":
-                ctoken = "OR_ASSIGN"
-            elif token == "^=":
-                ctoken = "XOR_ASSIGN"
+            elif token != operators:
+                ctoken = "INVALID"
                 
         # SPECIAL CHARACTERS / SYMBOLS
         elif token in special_characters:
@@ -152,7 +140,7 @@ def tokenize_and_categorize(input_program):
                 ctoken = "DQOUTATION"
             elif token == "/":
                 ctoken = "SQOUTATION"
-            elif token == '\':
+            elif token == "\":
                 ctoken = "DQOUTATION"
                 
             else:

@@ -7,27 +7,40 @@ def tokenize_and_categorize(input_program):
                     "volatile", "while", "string", "class", "struct", "include"])
 
     operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
-    special_characters = set("[]]@&~!#$\^|{}:;<>,.'()")
+    special_characters = set("[]@&~!#$\^|{}:;<>,.'()")
     numerals = set("0123456789")
 
     # Split input_program into tokens
     input_program_tokens = input_program.split()
 
+    # Create a list to store lexeme-token pairs
+    lexeme_token_pairs = []
+
     # Categorize the tokens
     for token in input_program_tokens:
+        lexeme = token
         ctoken = ""
+        
         if token in keywords:
-            ctoken = "KEYWORD"
-        elif token in operators:
-            ctoken = "OPERATOR"
-        elif token in special_characters:
-            ctoken = "SPECIAL_CHARACTER"
-        elif token.isdigit():
-            ctoken = "NUMERAL"
-        else:
-            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+            if token == "int":
+                ctoken = "integer"
+            # Add more conditions for other keywords
+            elif token in operators:
+                ctoken = "OPERATOR"
+            elif token in special_characters:
+                ctoken = "SPECIAL_CHARACTER"
+            elif token.isdigit():
+                ctoken = "NUMERAL"
+            else:
+                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
-        print(f"Token: {token}, Type: {ctoken}")
+        lexeme_token_pairs.append((lexeme, ctoken))
+
+    # Print the table
+    print("Lexeme\t\tToken")
+    print("-----------------------")
+    for lexeme, token in lexeme_token_pairs:
+        print(f"{lexeme}\t\t{token}")
 
 # Example usage
 input_program = input("Enter Your Code: ")

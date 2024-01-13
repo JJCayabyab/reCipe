@@ -1,90 +1,32 @@
-class LexicalAnalyzer:
-    def __init__(self):
-        # Token row
-        self.lin_num = 1
+# Define characters
+Alphabet = set('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
+Capital_letters = set('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+Small_letters = set('abcdefghijklmnopqrstuvwxyz')
+Digits = set('0123456789')
+Integers = Digits | {'-'}
+Special_characters = set('.+-*/%<>=\'",;|!()[]_^~& ')
+Underscore = {'_'}
 
-    def tokenize(self, code):
-        rules = [
-            ('MAIN', 'main'),          # main
-            ('INT', 'int'),            # int
-            ('FLOAT', 'float'),        # float
-            ('IF', 'if'),              # if
-            ('ELSE', 'else'),          # else
-            ('WHILE', 'while'),        # while
-            ('READ', 'read'),          # read
-            ('PRINT', 'print'),        # print
-            ('LBRACKET', r'\('),        # (
-            ('RBRACKET', r'\)'),        # )
-            ('LBRACE', r'\{'),          # {
-            ('RBRACE', r'\}'),          # }
-            ('COMMA', r','),            # ,
-            ('PCOMMA', r';'),           # ;
-            ('EQ', r'=='),              # ==
-            ('NE', r'!='),              # !=
-            ('LE', r'<='),              # <=
-            ('GE', r'>='),              # >=
-            ('OR', r'\|\|'),            # ||
-            ('AND', r'&&'),             # &&
-            ('ATTR', r'\='),            # =
-            ('LT', r'<'),               # <
-            ('GT', r'>'),               # >
-            ('PLUS', r'\+'),            # +
-            ('MINUS', r'-'),            # -
-            ('MULT', r'\*'),            # *
-            ('DIV', r'\/'),             # /
-            ('ID', r'[a-zA-Z]\w*'),     # IDENTIFIERS
-            ('FLOAT_CONST', r'\d+(\.\d+)?'),   # FLOAT
-            ('INTEGER_CONST', r'\d+'),          # INT
-            ('NEWLINE', r'\n'),         # NEW LINE
-            ('SKIP', r'[ \t]+'),        # SPACE and TABS
-        ]
+# Define sets
+Character = Alphabet | Digits | Special_characters
+Alphabet = Capital_letters | Small_letters
+Special_Characters = set('.+-*/%<>=\'",;|!()[]_^~& ')
 
-        tokens = []
-        lexemes = []
-        rows = []
-        columns = []
+# Define keywords and reserved words
+Keywords = {'IF', 'ELSE', 'WHILE', 'FOR', 'INT', 'FLOAT', 'CHAR', 'RETURN', 'BREAK'}
 
-        i = 0
-        while i < len(code):
-            match = None
-            for token_type, pattern in rules:
-                if code[i:].startswith(pattern):
-                    match = (token_type, code[i:i+len(pattern)])
-                    break
+# Check if an identifier is valid based on the given rules
+def is_valid_identifier(identifier):
+    if not identifier or identifier[0] not in Alphabet | Underscore:
+        return False
 
-            if match:
-                token_type, token_lexeme = match
-                if token_type == 'NEWLINE':
-                    i += 1  # Skip newline character
-                elif token_type != 'SKIP':
-                    col = i
-                    row = self.lin_num
-                    tokens.append(token_type)
-                    lexemes.append(token_lexeme)
-                    rows.append(row)
-                    columns.append(col)
-                    # To print information about a Token
-                    print('Token = {0}, Lexeme = \'{1}\', Row = {2}, Column = {3}'.format(token_type, token_lexeme, row, col))
+    for char in identifier[1:]:
+        if char not in Alphabet | Digits | {'-', '_'}:
+            return False
 
-                i += len(token_lexeme)
-            else:
-                raise RuntimeError('%r unexpected on line %d' % (code[i], self.lin_num))
-                i += 1
+    return identifier.upper() not in Keywords
 
-        return tokens, lexemes, rows, columns
-
-# Example usage:
-code = """
-main {
-    int x = 10;
-    float y = 20.5;
-    if (x > y) {
-        print("x is greater than y");
-    } else {
-        print("y is greater than x");
-    }
-}
-"""
-
-lexer = LexicalAnalyzer()
-lexer.tokenize(code)
+# Test the validity of identifiers
+identifiers = ['variable', '_Variable', '123Var', 'KeyWord', 'IF', 'FirstName', 'firstName']
+for identifier in identifiers:
+    print(f"{identifier} is {'valid' if is_valid_identifier(identifier) else 'invalid'} identifier.")

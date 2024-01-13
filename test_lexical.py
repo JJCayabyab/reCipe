@@ -6,13 +6,8 @@ def tokenize_and_categorize(input_program):
                     "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                     "volatile", "while", "string", "class", "struct", "include"])
 
-<<<<<<< HEAD
-    operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
-    delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
-=======
     operators = set(["=", "+=", "-=", "*=", "/=", "%=", "+", "-", "*", "/", "%", "++", "--", "!", "||", "&&", "==", "!=", ">", "<", ">=", "<="])
     delimeters = set([";", "(", ")", "[", "]", "{", "}", "//", "/*", "*/", " "])
->>>>>>> d9a8d84dc036f499d76e7d3dc5e0b60b80d52a35
     numerals = set("0123456789")
 
     # Split input_program into tokens

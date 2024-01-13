@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from BUFFER import BUFFER
-from LEXER import LEXER
+from Buffer import Buffer
+from LexicalAnalyzer import LexicalAnalyzer
 
 if __name__ == '__main__':
     Buffer = Buffer()

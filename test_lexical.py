@@ -18,11 +18,14 @@ def tokenize_and_categorize(input_program):
 
     # Categorize the tokens
     for token in input_program_tokens:
+        
         lexeme = token
         ctoken = ""
         
+        #KEYWORDS/DATA TYPE/STATEMENTS
         if token in keywords:
             if token == "int":
+<<<<<<< HEAD
                 ctoken = "integer"
             # Add more conditions for other keywords
         elif token in operators:
@@ -34,6 +37,35 @@ def tokenize_and_categorize(input_program):
             ctoken = "NUMERAL"
         else:
             ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+=======
+                ctoken = "DT_INT"          
+            elif token == "char":
+                ctoken = "DT_CHAR"
+            elif token == "float":     
+                ctoken = "DT_FLOAT"
+            elif token == "double":
+                ctoken = "DT_DOUBLE"          
+            elif token == "if":
+                ctoken = "IF_STM"
+            elif token == "else":
+                ctoken = "ELSE_STM"
+            elif token == "for":
+                ctoken = "LP_STM"
+            elif token == "while":
+                ctoken = "WHILE_STM"
+            elif token == "do":
+                ctoken = "DO_STM"
+            
+        #OPERATORS
+        elif token in operators:
+                ctoken = "OPERATOR"
+        elif token in special_characters:
+                ctoken = "SPECIAL_CHARACTER"
+        elif token.isdigit():
+                ctoken = "NUMERAL"
+        else:
+                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+>>>>>>> 16955e620743500e348c67f541851fcb281cd938
 
         lexeme_token_pairs.append((lexeme, ctoken))
 

@@ -47,7 +47,6 @@ def tokenize_and_categorize(input_program):
             
         # OPERATORS
         elif token in operators:
-<<<<<<< HEAD
                 ctoken = "OPERATOR"
         
             # SPECIAL CHARACTERS / SYMBOLS
@@ -92,18 +91,16 @@ def tokenize_and_categorize(input_program):
                 ctoken = "INVALID"
 
                                                           
-=======
-            ctoken = "OPERATOR"
-        elif token in special_characters:
-            ctoken = "SPECIAL_CHARACTER"
->>>>>>> 3d6228112e70254056920768012fde9d74b61e0a
         elif token.isdigit():
-            ctoken = "NUMERAL"
+                ctoken = "NUMERAL"
+                
         else:
-            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
         lexeme_token_pairs.append((lexeme, ctoken))
-
+    
+    #
+    
     # Print the table
     print("Lexeme\t\tToken")
     print("-----------------------")

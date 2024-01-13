@@ -11,7 +11,21 @@ def tokenize_and_categorize(input_program):
     numerals = set("0123456789")
 
     # Tokenize the input program
-    input_program_tokens = input_program.split()
+    input_program_tokens = []
+    current_token = ""
+    
+    for char in input_program:
+        if char.isspace() or char in special_characters or char in operators:
+            if current_token:
+                input_program_tokens.append(current_token)
+                current_token = ""
+            if char != ' ':
+                input_program_tokens.append(char)
+        else:
+            current_token += char
+    
+    if current_token:
+        input_program_tokens.append(current_token)
 
     # Print the header for the table
     print("{:<20} {:<30}".format("Lexeme", "Token"))

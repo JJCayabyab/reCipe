@@ -22,7 +22,7 @@ def tokenize_and_categorize(input_program):
         lexeme = token
         ctoken = ""
         
-        #KEYWORDS/DATA TYPE/STATEMENTS
+        # KEYWORDS / DATA TYPE / STATEMENTS
         if token in keywords:
             if token == "int":
                 ctoken = "DT_INT"          
@@ -42,16 +42,65 @@ def tokenize_and_categorize(input_program):
                 ctoken = "WHILE_STM"
             elif token == "do":
                 ctoken = "DO_STM"
+            elif token != keywords:
+                ctoken = "INVALID"
             
-        #OPERATORS
+        # OPERATORS
         elif token in operators:
+<<<<<<< HEAD
                 ctoken = "OPERATOR"
+        
+            # SPECIAL CHARACTERS / SYMBOLS
         elif token in special_characters:
-                ctoken = "SPECIAL_CHARACTER"
+            if token == "!":
+                ctoken = "EXSYM"
+            elif token == "@":
+                ctoken = "ATSYM"
+            elif token == "#":
+                ctoken = "HASHSYM"
+            elif token == "$":
+                ctoken = "DOSYM"
+            elif token == "%":
+                ctoken = "PERSYM"
+            elif token == "^":
+                ctoken = "CARSYM"
+            elif token == "&":
+                ctoken = "ANDSYM"
+            elif token == "*":
+                ctoken = "ASTSYM"
+            elif token == "(":
+                ctoken = "LPAREN"
+            elif token == ")":
+                ctoken = "RPAREN"
+            elif token == "-":
+                ctoken = "HPSYM"  
+            elif token == "_":    
+                ctoken = "UDSYM"  
+            elif token == "[":    
+                ctoken = "LBRAC"
+            elif token == "]":    
+                ctoken = "RBRAC"
+            elif token == ":":
+                ctoken = "COLON"
+            elif token == ";":
+                ctoken = "SEMICOLON"
+            elif token == "'":
+                ctoken = "SQOUTATION"
+            elif token == '"':
+                ctoken = "DQOUTATION"
+            else:
+                ctoken = "INVALID"
+
+                                                          
+=======
+            ctoken = "OPERATOR"
+        elif token in special_characters:
+            ctoken = "SPECIAL_CHARACTER"
+>>>>>>> 3d6228112e70254056920768012fde9d74b61e0a
         elif token.isdigit():
-                ctoken = "NUMERAL"
+            ctoken = "NUMERAL"
         else:
-                ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
+            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
 
         lexeme_token_pairs.append((lexeme, ctoken))
 

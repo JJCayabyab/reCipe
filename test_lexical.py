@@ -6,9 +6,8 @@ def tokenize_and_categorize(input_program):
                     "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                     "volatile", "while", "string", "class", "struct", "include"])
 
-    operators = set(["++", "--", "+", "-", "*", "/", "%", "==", "=", "+=", "-=", "*=", "/=", ">", "<", ">=", "<=", 
-                     "&&", "||", "!", "&", "|", "&=", "|="])
-    special_characters = set("[]@&~!#$\^|{}:;<>,.'()")
+    operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
+    delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "}", "'", '"', ";"])
     numerals = set("0123456789")
 
     # Split input_program into tokens
@@ -85,20 +84,14 @@ def tokenize_and_categorize(input_program):
             elif token == "<=":
                 ctoken = "LESS_OR_EQUAL"
             elif token == "&&":
-                ctoken = "LOGICAL_AND"
+                ctoken = "LOG_AND"
             elif token == "||":
-                ctoken = "LOGICAL_OR"
-            elif token == "!":
-                ctoken = "LOGICAL_NOT"
-            elif token == "&":
-                ctoken = "BITWISE_AND"
-            elif token == "|":
-                ctoken = "BITWISE_OR"
+                ctoken = "LOG_OR"
             elif token != operators:
                 ctoken = "INVALID"
                 
         # SPECIAL CHARACTERS / SYMBOLS
-        elif token in special_characters:
+        elif token in delimeters:
             if token == "!":
                 ctoken = "EXSYM"
             elif token == "@":
@@ -132,18 +125,20 @@ def tokenize_and_categorize(input_program):
             elif token == ";":
                 ctoken = "SEMICOLON"
             elif token == "'":
-                ctoken = "SQOUTATION"
+                ctoken = "SQOUT"
             elif token == '"':
-                ctoken = "DQOUTATION"
+                ctoken = "DQOUT"
             elif token == ",":
-                ctoken = "SQOUTATION"
+                ctoken = "COMMA"
             elif token == '.':
-                ctoken = "DQOUTATION"
+                ctoken = "DOTSYM"
             elif token == "/":
-                ctoken = "SQOUTATION"   
+                ctoken = "SLSYM"
+            elif token == " ":
+                ctoken = "SPACE"
+                
             else:
                 ctoken = "INVALID"
-
                                                           
         elif token.isdigit():
                 ctoken = "NUMERAL"

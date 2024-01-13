@@ -25,19 +25,6 @@ def tokenize_and_categorize(input_program):
         #KEYWORDS/DATA TYPE/STATEMENTS
         if token in keywords:
             if token == "int":
-<<<<<<< HEAD
-                ctoken = "integer"
-            # Add more conditions for other keywords
-        elif token in operators:
-            if token == "++":
-                ctoken = "increment"
-        elif token in special_characters:
-            ctoken = "SPECIAL_CHARACTER"
-        elif token.isdigit():
-            ctoken = "NUMERAL"
-        else:
-            ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
-=======
                 ctoken = "DT_INT"          
             elif token == "char":
                 ctoken = "DT_CHAR"
@@ -65,7 +52,6 @@ def tokenize_and_categorize(input_program):
                 ctoken = "NUMERAL"
         else:
                 ctoken = "IDENTIFIER"  # Assuming anything else is an identifier
->>>>>>> 16955e620743500e348c67f541851fcb281cd938
 
         lexeme_token_pairs.append((lexeme, ctoken))
 

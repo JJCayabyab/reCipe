@@ -47,8 +47,66 @@ def tokenize_and_categorize(input_program):
             
         # OPERATORS
         elif token in operators:
-                ctoken = "OPERATOR"
-        
+            if token == "++":
+                ctoken = "INCREMENT"
+            elif token == "+":
+                ctoken = "PLUS"
+            elif token == "--":
+                ctoken = "DECREMENT"
+            elif token == "-":
+                ctoken = "MINUS"
+            elif token == "*":
+                ctoken = "MULTIPLY"
+            elif token == "/":
+                ctoken = "DIVISION"
+            elif token == "%":
+                ctoken = "MODULO"
+            elif token == "=":
+                ctoken = "EQUALS"
+            elif token == "==":
+                ctoken = "EQUALITY"
+            elif token == "+=":
+                ctoken = "PLUS ASSIGN"
+            elif token == "-=":
+                ctoken = "MINUS ASSIGN"
+            elif token == "*=":
+                ctoken = "MULTI ASSIGN"
+            elif token == "/=":
+                ctoken = "DIV ASSIGN"
+            elif token == ">":
+                ctoken = "GREATER THAN"
+            elif token == "<":
+                ctoken = "LESS THAN"
+            elif token == "!=":
+                ctoken = "NOT EQUAL"
+            elif token == ">=":
+                ctoken = "GREATER OR EQUAL"
+            elif token == "<=":
+                ctoken = "LESS OR EQUAL"
+            elif token == "&&":
+                ctoken = "LOGICAL AND"
+            elif token == "||":
+                ctoken = "LOGICAL OR"
+            elif token == "!":
+                ctoken = "LOGICAL NOT"
+            elif token == "&":
+                ctoken = "BITWISE AND"
+            elif token == "|":
+                ctoken = "BITWISE OR"
+            elif token == "^":
+                ctoken = "BITWISE XOR"
+            elif token == "~":
+                ctoken = "COMPLEMENT"
+            elif token == "<<":
+                ctoken = "LEFT SHIFT"
+            elif token == ">>":
+                ctoken = "RIGHT SHIFT"
+            elif token == "&=":
+                ctoken = "AND ASSIGN"
+            elif token == "|=":
+                ctoken = "OR ASSIGN"
+            elif token == "^=":
+                ctoken = "XOR ASSIGN"
             # SPECIAL CHARACTERS / SYMBOLS
         elif token in special_characters:
             if token == "!":

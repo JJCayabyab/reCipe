@@ -121,7 +121,7 @@ def tokenize_and_categorize(input_program):
                 ctoken = "RCURLBRAC"
             elif token == "//":    
                 ctoken = "SINGLE_COMMENT"
-            elif token == "/*:    
+            elif token == "/*":    
                 ctoken = "RMULTI_COMMENT"
             elif token == "*/":    
                 ctoken = "LMULTI_COMMENT"

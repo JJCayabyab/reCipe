@@ -123,6 +123,10 @@ def tokenize_and_categorize(input_program):
                 ctoken = "LMULTI_COMMENT"
             elif token == " ":    
                 ctoken = "SPACE"
+            elif token == "'":    
+                ctoken = "SQOUT"
+            elif token == '"':    
+                ctoken = "DQOUT"
             else:
                 ctoken = "INVALID"
             
@@ -145,10 +149,9 @@ def tokenize_and_categorize(input_program):
     #
     
     # Print the table
-    print("Lexeme\t\tToken")
-    print("-----------------------")
+    print("Lexeme\t\t\tToken\n")
     for lexeme, token in lexeme_token_pairs:
-        print(f"{lexeme}\t\t{token}")
+        print(f"{lexeme}\t\t\t{token}")
 
 # Example usage
 input_program = input("Enter Your Code: ")

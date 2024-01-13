@@ -56,6 +56,7 @@ class LexicalAnalyzer:
                 token_type, token_lexeme = match
                 if token_type == 'NEWLINE':
                     self.lin_num += 1
+                    i += 1  # Skip newline character
                 elif token_type != 'SKIP':
                     col = i
                     row = self.lin_num

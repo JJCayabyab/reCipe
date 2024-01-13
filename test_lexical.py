@@ -7,7 +7,7 @@ def tokenize_and_categorize(input_program):
                     "volatile", "while", "string", "class", "struct", "include"])
 
     operators = set(["++", "-", "=", "*", "/", "%", "--", "<=", ">="])
-    delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "}", "'", '"', ";"])
+    delimeters = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
     numerals = set("0123456789")
 
     # Split input_program into tokens
@@ -22,7 +22,7 @@ def tokenize_and_categorize(input_program):
         lexeme = token
         ctoken = ""
         
-        # KEYWORDS / DATA TYPE / STATEMENTS
+        # KEYWORDS 
         if token in keywords:
             if token == "int":
                 ctoken = "DT_INT"          

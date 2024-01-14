@@ -55,7 +55,7 @@ def tokenize_and_categorize(input_program):
         "'": "SQOUT",
         '"': "DQOUT",
     }
-
+    
     input_program_tokens = [token for token in input_program.split() if token.strip()]
     lexeme_token_pairs = []
 
@@ -80,6 +80,8 @@ def tokenize_and_categorize(input_program):
             # Handle delimiters
             elif token in delimiters:
                 ctoken = delimiters[token]
+            
+            elif token is
 
             # Handle identifiers
             else:

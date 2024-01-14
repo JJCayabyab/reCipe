@@ -104,19 +104,28 @@ def tokenize_and_categorize(input_program):
             current_pos += 1
             continue
 
-        # Check for lexemes in the toke_d dictionary
-        found_lexeme = False
-        for lexeme, token in token_d.items():
-            if input_program.startswith(lexeme, current_pos):
-                lexeme_token_pairs.append((lexeme, token))
-                current_pos += len(lexeme)
-                found_lexeme = True
-                break
+        # Check for numeric literals
+        if char.isdigit():
+            numeral = ""
+            while current_pos < input_length and input_program[current_pos].isdigit():
+                numeral += input_program[current_pos]
+                current_pos += 1
+            lexeme_token_pairs.append((numeral, "NUMERAL"))
 
-        if not found_lexeme:
-            # If none of the lexemes match, it might be an invalid character
-            lexeme_token_pairs.append((char, "INVALID"))
-            current_pos += 1
+        else:
+            # Check for lexemes in the token_d dictionary
+            found_lexeme = False
+            for lexeme, token in token_d.items():
+                if input_program.startswith(lexeme, current_pos):
+                    lexeme_token_pairs.append((lexeme, token))
+                    current_pos += len(lexeme)
+                    found_lexeme = True
+                    break
+
+            if not found_lexeme:
+                # If none of the lexemes match, it might be an invalid character
+                lexeme_token_pairs.append((char, "INVALID"))
+                current_pos += 1
 
     # Print the table
     print("Lexeme\t\t\tToken\n")

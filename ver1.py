@@ -5,18 +5,11 @@ KEYWORDS = set(["auto", "break", "case", "char", "const", "continue", "default",
 OPERATORS = set(["++", "--", "+", "-", "*", "/", "%", "=", "<", ">", "<=", ">="])
 DELIMITERS = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
 NUMERALS = set("0123456789")
+GENERAL = set(["ERROR", "EOF", ])
+IDENTIFIERS = set()
 
-def is_valid_identifier(token):
-    # Check if the token follows the pattern for a valid identifier
-    if token[0].isalpha() or token[0] == '_':
-        for char in token[1:]:
-            if not (char.isalnum() or char == '_'):
-                return False
-        return True
-    return False
-
-def tokenize_and_categorize(input_program):
-    keywords = {
+token_dict = {
+        #keywords
         "int": "DT_INT",
         "char": "DT_CHAR",
         "float": "DT_FLOAT",
@@ -26,9 +19,7 @@ def tokenize_and_categorize(input_program):
         "for": "LP_STM",
         "while": "WHILE_STM",
         "do": "DO_STM",
-    }
-
-    operators = {
+        #operators
         "=": "ASSIGN",
         "+=": "ADD_ASSIGN",
         "-=": "MINUS_ASSIGN",
@@ -50,10 +41,8 @@ def tokenize_and_categorize(input_program):
         "<": "LESS_THAN",
         ">=": "GREAT_OR_EQUAL",
         "<=": "LESS_OR_EQUAL",
-    }
-
-    delimiters = {
-        ";": "SPECIAL_CHAR",
+        # delimiters
+        ";": "SEMICOLON",
         "(": "LPAREN",
         ")": "RPAREN",
         "[": "LBRAC",
@@ -62,48 +51,45 @@ def tokenize_and_categorize(input_program):
         "}": "RCURLBRAC",
         "'": "SQOUT",
         '"': "DQOUT",
-    }
-    
-    input_program_tokens = [token for token in input_program.split() if token.strip()]
-    lexeme_token_pairs = []
+}
 
-    for token in input_program_tokens:
-        # Check for semicolon and separate it from the identifier
-        if ";" in token:
-            identifier = token.rstrip(";")
-            lexeme_token_pairs.append((identifier, "IDENT"))
-            lexeme_token_pairs.append((";", "SPECIAL_CHAR"))
+def tokenize(source_code):
+    tokens = []
+    lexemes = []
+    current_token = ""
+
+    for char in source_code:
+        
+        if char.isalnum() or char in ['_', '.']:
+            current_token += char
         else:
-            lexeme = token
-            ctoken = ""
+            if current_token:
+                token_type = token_dict.get(current_token, "IDENTIFIER")
+                tokens.append((token_type, current_token))
+                lexemes.append(current_token)
 
-            # Handle keywords (case-insensitive)
-            if token.lower() in keywords:
-                ctoken = keywords[token.lower()]
+            current_token = ""
 
-            # Handle operators
-            elif token in operators:
-                ctoken = operators[token]
+            if char.isspace():
+                continue
+            elif char in DELIMITERS:
+                token_type = token_dict.get(char, "DELIMITER")
+                tokens.append((token_type, char))
+                lexemes.append(char)
+            elif char in OPERATORS:
+                current_token += char
+                if current_token in OPERATORS:
+                    token_type = token_dict.get(current_token, "OPERATOR")
+                    tokens.append((token_type, current_token))
+                    lexemes.append(current_token)
 
-            # Handle delimiters
-            elif token in delimiters:
-                ctoken = delimiters[token]
-    
+    return tokens, lexemes
 
-            # Handle identifiers
-            else:
-                # Check if the token follows the pattern for a valid identifier
-                if is_valid_identifier(token):
-                    ctoken = "IDENT"
-                else:
-                    print(f"Error: Unrecognized token - {token}")
+source_code = input("Enter source code: ")
+tokens, lexemes = tokenize(source_code)
 
-            lexeme_token_pairs.append((lexeme, ctoken))
-
-    print("Lexeme\t\t\tToken")
-    for lexeme, token in lexeme_token_pairs:
-        print(f"{lexeme}\t\t\t{token}")
-
-# Example usage
-input_program = input("Enter Your Code: ")
-tokenize_and_categorize(input_program)
+# Display in table format
+print("Lexeme\t\tToken")
+print("----------------------")
+for token, lexeme in zip(tokens, lexemes):
+    print(f"{lexeme}\t\t{token[0]}")

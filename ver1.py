@@ -54,6 +54,7 @@ token_d = {
     "'": "SQOUT",
     '"': "DQOUT",
     ":": "COLON",
+    ",": "COM"
 }
 
 

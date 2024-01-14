@@ -1,3 +1,11 @@
+KEYWORDS = set(["auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
+                    "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
+                    "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
+                    "volatile", "while", "string", "class", "struct", "include"])
+OPERATORS = set(["++", "--", "+", "-", "*", "/", "%", "=", "<", ">", "<=", ">="])
+DELIMITERS = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
+NUMERALS = set("0123456789")
+
 def is_valid_identifier(token):
     # Check if the token follows the pattern for a valid identifier
     if token[0].isalpha() or token[0] == '_':
@@ -80,8 +88,7 @@ def tokenize_and_categorize(input_program):
             # Handle delimiters
             elif token in delimiters:
                 ctoken = delimiters[token]
-            
-            elif token is
+    
 
             # Handle identifiers
             else:

@@ -3,7 +3,7 @@ KEYWORDS = set(["auto", "break", "case", "char", "const", "continue", "default",
                     "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                     "volatile", "while", "string", "class", "struct", "include"])
 OPERATORS = set(["++", "--", "+", "-", "*", "/", "%", "=", "<", ">", "<=", ">="])
-DELIMITERS = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";"])
+DELIMITERS = set(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/" , "}", "'", '"', ";", ":"])
 NUMERALS = set("0123456789")
 GENERAL = set(["ERROR", "EOF", ])
 IDENTIFIERS = set()
@@ -153,6 +153,8 @@ def tokenize_and_categorize(input_program):
                 ctoken = "SQOUT"
             elif token == '"':    
                 ctoken = "DQOUT"
+            elif token == ":":
+                ctoken = "COLON"
             else:
                 ctoken = "INVALID"
             

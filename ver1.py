@@ -1,6 +1,14 @@
+def is_valid_identifier(token):
+    # Check if the token follows the pattern for a valid identifier
+    if token[0].isalpha() or token[0] == '_':
+        for char in token[1:]:
+            if not (char.isalnum() or char == '_'):
+                return False
+        return True
+    return False
+
 def tokenize_and_categorize(input_program):
-    # Define dictionaries for different token types
-    keyword_mapping = {
+    keywords = {
         "int": "DT_INT",
         "char": "DT_CHAR",
         "float": "DT_FLOAT",
@@ -10,16 +18,14 @@ def tokenize_and_categorize(input_program):
         "for": "LP_STM",
         "while": "WHILE_STM",
         "do": "DO_STM",
-        # ... add more keywords
     }
 
-    operator_mapping = {
+    operators = {
         "=": "ASSIGN",
         "+=": "ADD_ASSIGN",
         "-=": "MINUS_ASSIGN",
         "*=": "MULTI_ASSIGN",
         "/=": "DIV_ASSIGN",
-        "%=": "MODULO_ASSIGN",
         "+": "ADD",
         "-": "MINUS",
         "*": "MULTI",
@@ -36,10 +42,9 @@ def tokenize_and_categorize(input_program):
         "<": "LESS_THAN",
         ">=": "GREAT_OR_EQUAL",
         "<=": "LESS_OR_EQUAL",
-        # ... add more operators
     }
 
-    special_characters_mapping = {
+    delimiters = {
         ";": "SPECIAL_CHAR",
         "(": "LPAREN",
         ")": "RPAREN",
@@ -47,57 +52,48 @@ def tokenize_and_categorize(input_program):
         "]": "RBRAC",
         "{": "LCURLBRAC",
         "}": "RCURLBRAC",
-        "//": "COMMENT",
-        "/*": "MULTI_COMMENT",
-        "*/": "MULTI_COMMENT",
         "'": "SQOUT",
         '"': "DQOUT",
-        # ... add more special characters
     }
 
-    # Create a list to store lexeme-token pairs
+    input_program_tokens = [token for token in input_program.split() if token.strip()]
     lexeme_token_pairs = []
 
-    # Initialize variables
-    current_lexeme = ""
-    in_comment_block = False
+    for token in input_program_tokens:
+        # Check for semicolon and separate it from the identifier
+        if ";" in token:
+            identifier = token.rstrip(";")
+            lexeme_token_pairs.append((identifier, "IDENT"))
+            lexeme_token_pairs.append((";", "SPECIAL_CHAR"))
+        else:
+            lexeme = token
+            ctoken = ""
 
-    # Categorize the input characters
-    for char in input_program:
-        if in_comment_block:
-            # Check for the end of a multi-line comment
-            if current_lexeme.endswith("*/"):
-                current_lexeme = ""
-                in_comment_block = False
-            continue
+            # Handle keywords (case-insensitive)
+            if token.lower() in keywords:
+                ctoken = keywords[token.lower()]
 
-        # Handle comment detection
-        if current_lexeme.endswith("//"):
-            current_lexeme = current_lexeme[:-2]  # Remove "//" from the lexeme
-            break
+            # Handle operators
+            elif token in operators:
+                ctoken = operators[token]
 
-        # Update lexeme based on the current character
-        current_lexeme += char
+            # Handle delimiters
+            elif token in delimiters:
+                ctoken = delimiters[token]
 
-        # Check if the current lexeme is a complete token
-        if current_lexeme.strip() in keyword_mapping:
-            lexeme_token_pairs.append((current_lexeme.strip(), keyword_mapping[current_lexeme.strip()]))
-            current_lexeme = ""
-        elif current_lexeme.strip() in operator_mapping:
-            lexeme_token_pairs.append((current_lexeme.strip(), operator_mapping[current_lexeme.strip()]))
-            current_lexeme = ""
-        elif current_lexeme.strip() in special_characters_mapping:
-            lexeme_token_pairs.append((current_lexeme.strip(), special_characters_mapping[current_lexeme.strip()]))
-            current_lexeme = ""
+            # Handle identifiers
+            else:
+                # Check if the token follows the pattern for a valid identifier
+                if is_valid_identifier(token):
+                    ctoken = "IDENT"
+                else:
+                    print(f"Error: Unrecognized token - {token}")
 
-        # Check for the start of a multi-line comment
-        elif current_lexeme.endswith("/*"):
-            in_comment_block = True
+            lexeme_token_pairs.append((lexeme, ctoken))
 
-    # Print the table
-    print("{:<15}{}".format("Lexeme", "Token"))
+    print("Lexeme\t\t\tToken")
     for lexeme, token in lexeme_token_pairs:
-        print("{:<15}{}".format(lexeme, token))
+        print(f"{lexeme}\t\t\t{token}")
 
 # Example usage
 input_program = input("Enter Your Code: ")

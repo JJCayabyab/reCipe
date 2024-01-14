@@ -127,7 +127,7 @@ def tokenize_and_categorize(input_program):
                 ctoken = "SQOUT"
             elif token == '"':    
                 ctoken = "DQOUT"
-            else:
+            elif token != delimeters:
                 ctoken = "INVALID"
             
         # GENERAL

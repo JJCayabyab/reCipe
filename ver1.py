@@ -11,7 +11,7 @@ class LexicalAnalyzer:
     GENERAL = frozenset(["ERROR", "EOF"])
     IDENTIFIERS = set()
     FLOAT_VAL = 7
-    ID_VAL = 31
+    ID_VAL =31
 
     token_d = {
         # keywords
@@ -84,150 +84,7 @@ class LexicalAnalyzer:
             and len(identifier) <= LexicalAnalyzer.ID_VAL
             and all(char.isalnum() or char in ['_'] for char in identifier)
         )
-    
-    @staticmethod
-    def handle_whitespace(input_program, current_pos):
-        while current_pos < len(input_program) and input_program[current_pos].isspace():
-            current_pos += 1
-        return current_pos
 
-    @staticmethod
-    def handle_single_line_comment(input_program, current_pos):
-        return input_program.find('\n', current_pos) if current_pos != -1 else current_pos
-
-    @staticmethod
-    def handle_multi_line_comment(input_program, current_pos):
-        return input_program.find('#', current_pos + 1) + 1 if current_pos != -1 else current_pos
-
-    @staticmethod
-    def handle_character_literal(input_program, current_pos, lexeme_token_pairs):
-        lexeme = "'"  # Start with the opening single quotation mark
-        current_pos += 1
-        while current_pos < len(input_program) and input_program[current_pos] != "'":
-            lexeme += input_program[current_pos]
-            current_pos += 1
-        lexeme += "'"  # Include the closing single quotation mark in the lexeme
-
-        # Check if the lexeme contains exactly 1 character
-        if len(lexeme) != 3:
-            lexeme_token_pairs.append((lexeme, "INVALID"))
-        else:
-            lexeme_token_pairs.append((lexeme, "CHAR_LITERAL"))
-
-        return current_pos + 1  # Move past the closing single quotation mark
-
-
-    @staticmethod
-    def handle_string_literal(input_program, current_pos, lexeme_token_pairs):
-        lexeme = '"'  # Start with the opening double quotation mark
-        current_pos += 1
-        while current_pos < len(input_program) and input_program[current_pos] != '"':
-            lexeme += input_program[current_pos]
-            current_pos += 1
-
-        if current_pos < len(input_program) and input_program[current_pos] == '"':
-            lexeme += '"'  # Include the closing double quotation mark in the lexeme
-            lexeme_token_pairs.append((lexeme, "STRING_LITERAL"))
-            current_pos += 1  # Move past the closing double quotation mark
-        else:
-            lexeme_token_pairs.append((lexeme, "INVALID"))
-
-        return current_pos
-
-
-    @staticmethod
-    def handle_reserved_keywords_and_identifiers(input_program, current_pos, lexeme_token_pairs):
-        identifier = ""
-        while current_pos < len(input_program) and (
-                input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
-            identifier += input_program[current_pos]
-            current_pos += 1
-
-        # Check if the identifier is a keyword, boolean literal, or reserved keyword
-        if identifier.upper() in LexicalAnalyzer.KEYWORDS:
-            lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
-        elif identifier.lower() == "true":
-            lexeme_token_pairs.append((identifier, "B_TRUE"))
-        elif identifier.lower() == "false":
-            lexeme_token_pairs.append((identifier, "B_FALSE"))
-        elif identifier.upper() in LexicalAnalyzer.token_d:
-            lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
-        elif LexicalAnalyzer.is_valid_identifier(identifier):
-            lexeme_token_pairs.append((identifier, "IDENTIFIER"))
-            LexicalAnalyzer.IDENTIFIERS.add(identifier)
-        else:
-            lexeme_token_pairs.append((identifier, "INVALID"))
-
-        return current_pos
-
-
-    @staticmethod
-    def handle_numerals(input_program, current_pos, lexeme_token_pairs):
-        numeral = ""
-        while current_pos < len(input_program) and (input_program[current_pos].isdigit() or input_program[current_pos] == '.'):
-            numeral += input_program[current_pos]
-            current_pos += 1
-
-        if '.' in numeral:
-            # Check for float or double based on the number of decimal places
-            num_parts = numeral.split('.')
-            decimal_places = len(num_parts[1]) if len(num_parts) > 1 else 0
-
-            if decimal_places <= LexicalAnalyzer.FLOAT_VAL:
-                lexeme_token_pairs.append((numeral, "FLOAT_LITERAL"))
-            else:
-                lexeme_token_pairs.append((numeral, "DOUBLE_LITERAL"))
-        else:
-            lexeme_token_pairs.append((numeral, "INTEGER_LITERAL"))
-
-        return current_pos
-
-
-    @staticmethod
-    def handle_compound_operators(input_program, current_pos, lexeme_token_pairs):
-        lexeme, token = "", ""
-        while current_pos < len(input_program) and input_program[current_pos] in LexicalAnalyzer.OPERATORS:
-            lexeme += input_program[current_pos]
-            current_pos += 1
-
-        if lexeme in LexicalAnalyzer.token_d:
-            token = LexicalAnalyzer.token_d[lexeme]
-        elif len(lexeme) == 1:
-            token = LexicalAnalyzer.token_d.get(lexeme, "INVALID")
-
-        lexeme_token_pairs.append((lexeme, token))
-        return current_pos
-
-
-    @staticmethod
-    def handle_unknown_tokens(input_program, current_pos, lexeme_token_pairs):
-        found_lexeme = False
-
-        for lexeme, token in LexicalAnalyzer.token_d.items():
-            if input_program.startswith(lexeme, current_pos):
-                lexeme_token_pairs.append((lexeme, token))
-                current_pos += len(lexeme)
-                found_lexeme = True
-                break
-
-        if not found_lexeme:
-            # If the character is not a valid lexeme, consider it as an invalid token
-            invalid_token = input_program[current_pos]
-            if invalid_token.isalpha() or invalid_token == '_':
-                # Invalid identifier character
-                while current_pos < len(input_program) and (
-                        input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
-                    invalid_token += input_program[current_pos]
-                    current_pos += 1
-                lexeme_token_pairs.append((invalid_token, "INVALID"))
-            else:
-                # Invalid single character
-                lexeme_token_pairs.append((invalid_token, "INVALID"))
-
-            current_pos += 1  # Move to the next character to avoid an infinite loop
-
-        return current_pos + 1
-    
     @staticmethod
     def tokenize_and_categorize(input_program):
         lexeme_token_pairs = []
@@ -237,29 +94,148 @@ class LexicalAnalyzer:
         while current_pos < input_length:
             char = input_program[current_pos]
 
+            # For whitespace
             if char.isspace():
-                current_pos = LexicalAnalyzer.handle_whitespace(input_program, current_pos)
-            elif input_program[current_pos:current_pos + 2] == "//":
-                current_pos = LexicalAnalyzer.handle_single_line_comment(input_program, current_pos)
-            elif char == '#':
-                current_pos = LexicalAnalyzer.handle_multi_line_comment(input_program, current_pos)
-            elif char == "'":
-                current_pos = LexicalAnalyzer.handle_character_literal(input_program, current_pos, lexeme_token_pairs)
-            elif char == '"':
-                current_pos = LexicalAnalyzer.handle_string_literal(input_program, current_pos, lexeme_token_pairs)
-            elif char.isalpha() or char == '_':
-                current_pos = LexicalAnalyzer.handle_reserved_keywords_and_identifiers(input_program, current_pos, lexeme_token_pairs)
-            elif char.isdigit():
-                current_pos = LexicalAnalyzer.handle_numerals(input_program, current_pos, lexeme_token_pairs)
-            elif char in LexicalAnalyzer.OPERATORS:
-                current_pos = LexicalAnalyzer.handle_compound_operators(input_program, current_pos, lexeme_token_pairs)
-            else:
-                current_pos = LexicalAnalyzer.handle_unknown_tokens(input_program, current_pos, lexeme_token_pairs)
+                current_pos += 1
+                continue
 
+            # Handle single-line comments using //
+            if input_program[current_pos:current_pos + 2] == "//":
+                current_pos = input_program.find('\n', current_pos)
+                if current_pos == -1:
+                    break
+                continue
+
+            # Handle multi-line comments using #
+            elif char == '#':
+                comment_end = input_program.find('#', current_pos + 1)
+                if comment_end == -1:
+                    print("Error: Unclosed multi-line comment.")
+                    # Find the next newline character
+                    current_pos = input_program.find('\n', current_pos)
+                    if current_pos == -1:
+                        break
+                    continue
+                current_pos = comment_end + 1
+
+            elif char == "'":
+                # Handle single quotation character literal
+                lexeme = char  # Start with the opening single quotation mark
+                current_pos += 1
+                while current_pos < input_length and input_program[current_pos] != "'":
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
+                lexeme += "'"  # Include the closing single quotation mark in the lexeme
+
+                # Check if the lexeme contains exactly 1 character
+                if len(lexeme) != 3:
+                    lexeme_token_pairs.append((lexeme, "INVALID"))
+                else:
+                    lexeme_token_pairs.append((lexeme, "CHAR_LITERAL"))
+
+                current_pos += 1  # Move past the closing single quotation mark
+                
+            elif char == '"':
+                # Handle double quotation string literal
+                lexeme = char  # Start with the opening double quotation mark
+                current_pos += 1
+                while current_pos < input_length and input_program[current_pos] != '"':
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
+
+                if current_pos < input_length and input_program[current_pos] == '"':
+                    lexeme += '"'  # Include the closing double quotation mark in the lexeme
+                    lexeme_token_pairs.append((lexeme, "STRING_LITERAL"))
+                    current_pos += 1  # Move past the closing double quotation mark
+                else:
+                    lexeme_token_pairs.append((lexeme, "INVALID"))
+            
+            # Check for reserved keywords
+            elif char.isalpha() or char == '_':
+                identifier = ""
+                while current_pos < input_length and (
+                        input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
+                    identifier += input_program[current_pos]
+                    current_pos += 1
+
+                # Check if the identifier is a keyword, boolean literal, or reserved keyword
+                if identifier.upper() in LexicalAnalyzer.KEYWORDS:
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                elif identifier.lower() == "true":
+                    lexeme_token_pairs.append((identifier, "B_TRUE"))
+                elif identifier.lower() == "false":
+                    lexeme_token_pairs.append((identifier, "B_FALSE"))
+                elif identifier.upper() in LexicalAnalyzer.token_d:
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                elif LexicalAnalyzer.is_valid_identifier(identifier):
+                    lexeme_token_pairs.append((identifier, "IDENTIFIER"))
+                    LexicalAnalyzer.IDENTIFIERS.add(identifier)
+                else:
+                    lexeme_token_pairs.append((identifier, "INVALID"))
+
+            # digit / numbers
+            elif char.isdigit():
+                numeral = ""
+                while current_pos < input_length and (input_program[current_pos].isdigit() or input_program[current_pos] == '.'):
+                    numeral += input_program[current_pos]
+                    current_pos += 1
+
+                if '.' in numeral:
+                        # Check for float or double based on the number of decimal places
+                        num_parts = numeral.split('.')
+                        decimal_places = len(num_parts[1]) if len(num_parts) > 1 else 0
+
+                        if decimal_places <= LexicalAnalyzer.FLOAT_VAL:
+                            lexeme_token_pairs.append((numeral, "FLOAT_LITERAL"))
+                        else:
+                            lexeme_token_pairs.append((numeral, "DOUBLE_LITERAL"))
+                else:
+                    lexeme_token_pairs.append((numeral, "INTEGER_LITERAL"))
+
+            # compound operators
+            elif char in LexicalAnalyzer.OPERATORS:
+                # Handle unary and compound assignment operators without spaces
+                lexeme, token = "", ""
+                while current_pos < input_length and input_program[current_pos] in LexicalAnalyzer.OPERATORS:
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
+
+                if lexeme in LexicalAnalyzer.token_d:
+                    token = LexicalAnalyzer.token_d[lexeme]
+                elif len(lexeme) == 1:
+                    token = LexicalAnalyzer.token_d.get(lexeme, "INVALID")
+
+                lexeme_token_pairs.append((lexeme, token))
+
+            else:
+                found_lexeme = False
+
+                for lexeme, token in LexicalAnalyzer.token_d.items():
+                    if input_program.startswith(lexeme, current_pos):
+                        lexeme_token_pairs.append((lexeme, token))
+                        current_pos += len(lexeme)
+                        found_lexeme = True
+                        break
+
+                if not found_lexeme:
+                    # If the character is not a valid lexeme, consider it as an invalid token
+                    invalid_token = input_program[current_pos]
+                    if invalid_token.isalpha() or invalid_token == '_':
+                        # Invalid identifier character
+                        while current_pos < input_length and (
+                                input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
+                            invalid_token += input_program[current_pos]
+                            current_pos += 1
+                        lexeme_token_pairs.append((invalid_token, "INVALID"))
+                    else:
+                        # Invalid single character
+                        lexeme_token_pairs.append((invalid_token, "INVALID"))
+
+                    current_pos += 1  # Move to the next character to avoid an infinite loop
+
+        # Move the return statement outside the while loop
         return lexeme_token_pairs
 
-
-# Constants
 FILE_EXTENSION = ".ipe"
 
 def process_file(file_path):
@@ -296,4 +272,4 @@ if __name__ == "__main__":
             process_file(file_path)
         except (FileNotFoundError, ValueError) as e:
             print(f"Error: {e}")
-            # Continue to the next file if the current one is not
+            # Continue to the next file if the current one is not found or empty

@@ -260,12 +260,38 @@ def process_file(file_path):
     lexer = LexicalAnalyzer()
     tokens = lexer.tokenize_and_categorize(input_program)
 
-    # Save tokens to a table-like file
+    # Determine the maximum length of lexemes for dynamic alignment
+    max_lexeme_length = max(len(lexeme) for lexeme, _ in tokens)
+
+    # Adjust the lexeme column width for reserved words and headers
+    lexeme_column_width = max(max_lexeme_length, len("Lexeme"))
+
+    # Adjust for reserved words in the lexeme_column_width calculation
+    for reserved_word in lexer.KEYWORDS:
+        lexeme_column_width = max(lexeme_column_width, len(reserved_word))
+
+    # Add padding for better alignment
+    lexeme_column_width += 5
+
+    # Determine the maximum length of tokens for dynamic alignment
+    max_token_length = max(len(token) for _, token in tokens)
+
+    # Adjust the token column width for centered alignment
+    token_column_width = max(max_token_length, len("Token"))
+    
+    # Add padding for better alignment
+    token_column_width += 5
+
+    # Save tokens to a table-like file with dynamic alignment
     output_file_path = f"{os.path.splitext(file_path)[0]}_lexer.txt"
     with open(output_file_path, 'w') as output_file:
-        output_file.write("Lexeme{:>45}Token\n".format(''))
+        lexeme_header = f"Lexeme{'' : <{lexeme_column_width}}Token{'' : ^{token_column_width}}"
+        output_file.write(f"{lexeme_header}\n")
+
         for lexeme, token in tokens:
-            output_file.write(f"{lexeme:<50}{token}\n")
+            formatted_lexeme = f"{lexeme:<{lexeme_column_width}}"
+            formatted_token = f"{token:^{token_column_width}}"
+            output_file.write(f"{formatted_lexeme}{formatted_token}\n")
 
     print(f"Tokens saved to: {output_file_path}")
 

@@ -15,6 +15,9 @@ class LexicalAnalyzer:
         "char": "DT_CHAR",
         "float": "DT_FLOAT",
         "double": "DT_DOUBLE",
+        "bool": "DT_BOOL",
+        "true": "B_TRUE",
+        "false": "B_FALSE",
         "if": "IF_STM",
         "else": "ELSE_STM",
         "for": "LP_STM",
@@ -155,16 +158,22 @@ class LexicalAnalyzer:
                     identifier += input_program[current_pos]
                     current_pos += 1
 
-                # Check if the identifier is a keyword
+                # Check if the identifier is a keyword or boolean literal
                 if identifier.lower() in LexicalAnalyzer.KEYWORDS:
-                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
-                    current_pos += 1  # Add this line to skip the blank space after a keyword
+                     lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
+                     current_pos += 1  # Add this line to skip the blank space after a keyword
+                elif identifier.lower() == "true":
+                    lexeme_token_pairs.append((identifier, "B_TRUE"))
+                elif identifier.lower() == "false":
+                    lexeme_token_pairs.append((identifier, "B_FALSE"))
+                elif identifier.lower() == "bool":
+                    lexeme_token_pairs.append((identifier, "DT_BOOL"))
                 elif LexicalAnalyzer.is_valid_identifier(identifier):
                     lexeme_token_pairs.append((identifier, "IDENTIFIER"))
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
                 else:
                     lexeme_token_pairs.append((identifier, "INVALID"))
-                    
+
             #compound operators
             elif char in LexicalAnalyzer.OPERATORS:
                 # Handle unary and compound assignment operators without spaces

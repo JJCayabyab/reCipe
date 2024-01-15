@@ -116,7 +116,16 @@ class LexicalAnalyzer:
                     if current_pos == -1:
                         break
                     continue
+
+                # Check if there is another '#' before the found comment end
+                next_comment_start = input_program.find('#', current_pos + 1)
+                if next_comment_start != -1 and next_comment_start < comment_end:
+                    print("Error: Nested multi-line comments are not allowed.")
+                    current_pos = next_comment_start + 1
+                    continue
+
                 current_pos = comment_end + 1
+
 
             elif char == "'":
                 # Handle single quotation character literal

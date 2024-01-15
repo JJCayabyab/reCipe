@@ -2,7 +2,7 @@ class LexicalAnalyzer:
     KEYWORDS = frozenset(["auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
                           "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
                           "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
-                          "volatile", "while", "string", "class", "struct", "include"])
+                          "volatile", "while", "string", "class", "struct", "include", "printf", "return"])
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
     DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
@@ -55,19 +55,19 @@ class LexicalAnalyzer:
         "'": "SQOUT",
         '"': "DQOUT",
         ":": "COLON",
-        ",": "COM"
-    }
-
+        ",": "COM",
+}
+   
     @staticmethod
     def is_valid_identifier(identifier):
-        # Rules for a valid identifier
+    # Rules for a valid identifier
         return (
             identifier.isidentifier()
             and (identifier[0].isalpha() or identifier[0] == '_')
             and identifier.lower() not in LexicalAnalyzer.KEYWORDS  # Check if the lowercase version is a keyword
             and ' ' not in identifier
+            and len(identifier) <= 31  # Check maximum length
             and all(char.isalnum() or char in ['-', '_'] for char in identifier)
-            and identifier not in LexicalAnalyzer.IDENTIFIERS
         )
 
     @staticmethod
@@ -78,7 +78,8 @@ class LexicalAnalyzer:
 
         while current_pos < input_length:
             char = input_program[current_pos]
-
+                
+            # For whitespace
             if char.isspace():
                 current_pos += 1
                 continue
@@ -88,16 +89,38 @@ class LexicalAnalyzer:
                 current_pos = input_program.find('\n', current_pos)
                 if current_pos == -1:
                     break
-
-             # Handle multi-line comments using #
+          
+            # Handle multi-line comments using #
             elif input_program.startswith("#", current_pos):
                 current_pos = input_program.find('#', current_pos + 1)
                 if current_pos == -1:
                     break
                 current_pos += 1
+            
+            elif char == "'":
+                # Handle single quotation string literal
+                lexeme = char  # Start with the opening single quotation mark
+                current_pos += 1
+                while current_pos < input_length and input_program[current_pos] != "'":
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
+                lexeme += "'"  # Include the closing single quotation mark in the lexeme
+                lexeme_token_pairs.append((lexeme, "S_STRL"))
+                current_pos += 1  # Move past the closing single quotation mark
 
+            elif char == '"':
+                # Handle double quotation string literal
+                lexeme = char  # Start with the opening double quotation mark
+                current_pos += 1
+                while current_pos < input_length and input_program[current_pos] != '"':
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
+                lexeme += '"'  # Include the closing double quotation mark in the lexeme
+                lexeme_token_pairs.append((lexeme, "D_STRL"))
+                current_pos += 1  # Move past the closing double quotation mark
 
-            if char.isdigit():
+            # digit / numbers
+            elif char.isdigit():
                 numeral = ""
                 while current_pos < input_length and input_program[current_pos].isdigit():
                     numeral += input_program[current_pos]
@@ -166,8 +189,8 @@ if __name__ == "__main__":
         output_file_path = "tokens_output.txt"  # Change this to the desired output file name
 
         with open(output_file_path, 'w') as output_file:
-            output_file.write("Lexeme\t\t\tToken\n")
+            output_file.write("Lexeme\t\t\t\t\tToken\n")
             for lexeme, token in tokens:
-                output_file.write(f"{lexeme.ljust(20)}{token}\n")
+                output_file.write(f"{lexeme.ljust(30)}{token}\n")
 
         print(f"Tokens saved to: {output_file_path}")

@@ -6,6 +6,7 @@ class LexicalAnalyzer:
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
     DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
+    GENERAL = frozenset(["ERROR", "EOF"])
     IDENTIFIERS = set()
 
     token_d = {
@@ -99,16 +100,22 @@ class LexicalAnalyzer:
                 current_pos = comment_end + 1
 
             elif char == "'":
-                # Handle single quotation string literal
+                # Handle single quotation character literal
                 lexeme = char  # Start with the opening single quotation mark
                 current_pos += 1
                 while current_pos < input_length and input_program[current_pos] != "'":
                     lexeme += input_program[current_pos]
                     current_pos += 1
                 lexeme += "'"  # Include the closing single quotation mark in the lexeme
-                lexeme_token_pairs.append((lexeme, "S_STRL"))
-                current_pos += 1  # Move past the closing single quotation mark
 
+                # Check if the lexeme contains exactly 1 character
+                if len(lexeme) != 3:
+                    lexeme_token_pairs.append((lexeme, "INVALID"))
+                else:
+                    lexeme_token_pairs.append((lexeme, "CHAR_LITERAL"))
+
+                current_pos += 1  # Move past the closing single quotation mark
+                
             elif char == '"':
                 # Handle double quotation string literal
                 lexeme = char  # Start with the opening double quotation mark
@@ -117,7 +124,7 @@ class LexicalAnalyzer:
                     lexeme += input_program[current_pos]
                     current_pos += 1
                 lexeme += '"'  # Include the closing double quotation mark in the lexeme
-                lexeme_token_pairs.append((lexeme, "D_STRL"))
+                lexeme_token_pairs.append((lexeme, "STRING_LITERAL"))
                 current_pos += 1  # Move past the closing double quotation mark
 
             elif char == "@":
@@ -187,15 +194,31 @@ class LexicalAnalyzer:
 
             else:
                 found_lexeme = False
+
                 for lexeme, token in LexicalAnalyzer.token_d.items():
                     if input_program.startswith(lexeme, current_pos):
                         lexeme_token_pairs.append((lexeme, token))
                         current_pos += len(lexeme)
                         found_lexeme = True
                         break
-                pass
 
-        current_pos += 1                
+                if not found_lexeme:
+                    # If the character is not a valid lexeme, consider it as an invalid token
+                    invalid_token = input_program[current_pos]
+                    if invalid_token.isalpha() or invalid_token == '_':
+                        # Invalid identifier character
+                        while current_pos < input_length and (
+                                input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
+                            invalid_token += input_program[current_pos]
+                            current_pos += 1
+                        lexeme_token_pairs.append((invalid_token, "INVALID"))
+                    else:
+                        # Invalid single character
+                        lexeme_token_pairs.append((invalid_token, "INVALID"))
+
+                    current_pos += 1  # Move to the next character to avoid an infinite loop
+
+        # Move the return statement outside the while loop
         return lexeme_token_pairs
 
 if __name__ == "__main__":

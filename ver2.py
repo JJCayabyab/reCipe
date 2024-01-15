@@ -4,9 +4,8 @@ class LexicalAnalyzer:
                           "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                           "volatile", "while", "string", "class", "struct", "include", "printf", "return"])
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
-    DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/", "}", "'", '"', ";", ":"])
+    DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
-    GENERAL = frozenset(["ERROR", "EOF"])
     IDENTIFIERS = set()
 
     token_d = {
@@ -15,9 +14,6 @@ class LexicalAnalyzer:
         "char": "DT_CHAR",
         "float": "DT_FLOAT",
         "double": "DT_DOUBLE",
-        "bool": "DT_BOOL",
-        "true": "B_TRUE",
-        "false": "B_FALSE",
         "if": "IF_STM",
         "else": "ELSE_STM",
         "for": "LP_STM",
@@ -52,9 +48,8 @@ class LexicalAnalyzer:
         "]": "RBRAC",
         "{": "LCURLBRAC",
         "}": "RCURLBRAC",
-        "//": "SINGLE_COMMENT",
-        "/*": "RMULTI_COMMENT",
-        "*/": "LMULTI_COMMENT",
+        "//": "SINGLE_COM",
+        "#": "MULTI_COM",
         " ": "SPACE",
         "'": "SQOUT",
         '"': "DQOUT",
@@ -89,17 +84,19 @@ class LexicalAnalyzer:
                 continue
 
             # Handle single-line comments
-            elif input_program[current_pos:current_pos + 2] == "//":
+            if input_program[current_pos:current_pos + 2] == "//":
                 current_pos = input_program.find('\n', current_pos)
                 if current_pos == -1:
                     break
+                continue
 
             # Handle multi-line comments using #
-            elif input_program.startswith("#", current_pos):
-                current_pos = input_program.find('#', current_pos + 1)
-                if current_pos == -1:
+            elif char == '#':
+                comment_end = input_program.find('#', current_pos + 1)
+                if comment_end == -1:
+                    print("Error: Unclosed multi-line comment.")
                     break
-                current_pos += 1
+                current_pos = comment_end + 1
 
             elif char == "'":
                 # Handle single quotation string literal
@@ -123,7 +120,6 @@ class LexicalAnalyzer:
                 lexeme_token_pairs.append((lexeme, "D_STRL"))
                 current_pos += 1  # Move past the closing double quotation mark
 
-            # Check if "@" is a placeholder for an identifier
             elif char == "@":
                 identifier = ""
                 current_pos += 1  # Move past the "@"
@@ -173,7 +169,7 @@ class LexicalAnalyzer:
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
                 else:
                     lexeme_token_pairs.append((identifier, "INVALID"))
-
+                    
             #compound operators
             elif char in LexicalAnalyzer.OPERATORS:
                 # Handle unary and compound assignment operators without spaces
@@ -197,7 +193,9 @@ class LexicalAnalyzer:
                         current_pos += len(lexeme)
                         found_lexeme = True
                         break
+                pass
 
+        current_pos += 1                
         return lexeme_token_pairs
 
 if __name__ == "__main__":

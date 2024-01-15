@@ -79,7 +79,7 @@ class LexicalAnalyzer:
         return (
             identifier.isidentifier()
             and (identifier[0].isalpha() or identifier[0] == '_')
-            and identifier.upper() not in LexicalAnalyzer.KEYWORDS
+            and identifier.lower() not in LexicalAnalyzer.KEYWORDS  # Convert to lowercase for case-insensitivity
             and ' ' not in identifier
             and len(identifier) <= LexicalAnalyzer.ID_VAL
             and all(char.isalnum() or char in ['_'] for char in identifier)
@@ -159,7 +159,7 @@ class LexicalAnalyzer:
                 else:
                     lexeme_token_pairs.append((lexeme, "INVALID"))
             
-            # Check for reserved keywords
+            # check keywords
             elif char.isalpha() or char == '_':
                 identifier = ""
                 while current_pos < input_length and (
@@ -168,14 +168,14 @@ class LexicalAnalyzer:
                     current_pos += 1
 
                 # Check if the identifier is a keyword, boolean literal, or reserved keyword
-                if identifier.upper() in LexicalAnalyzer.KEYWORDS:
-                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                if identifier.isupper() and identifier in LexicalAnalyzer.KEYWORDS:
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier, "INVALID")))
                 elif identifier.lower() == "true":
                     lexeme_token_pairs.append((identifier, "B_TRUE"))
                 elif identifier.lower() == "false":
                     lexeme_token_pairs.append((identifier, "B_FALSE"))
-                elif identifier.upper() in LexicalAnalyzer.token_d:
-                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                elif identifier.lower() in LexicalAnalyzer.KEYWORDS:  # Convert to lowercase for case-sensitivity
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
                 elif LexicalAnalyzer.is_valid_identifier(identifier):
                     lexeme_token_pairs.append((identifier, "IDENTIFIER"))
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
@@ -263,7 +263,7 @@ def process_file(file_path):
     # Save tokens to a table-like file
     output_file_path = f"{os.path.splitext(file_path)[0]}_lexer.txt"
     with open(output_file_path, 'w') as output_file:
-        output_file.write("Lexeme{:>50}Token\n".format(''))
+        output_file.write("Lexeme{:>45}Token\n".format(''))
         for lexeme, token in tokens:
             output_file.write(f"{lexeme:<50}{token}\n")
 

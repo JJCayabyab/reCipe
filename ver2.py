@@ -1,8 +1,10 @@
+import glob
+import os
+
 class LexicalAnalyzer:
-    KEYWORDS = frozenset(["auto", "break", "case", "char", "const", "continue", "default", "do", "double", "else",
-                          "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
-                          "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
-                          "volatile", "while", "string", "class", "struct", "include", "printf", "return"])
+    KEYWORDS = frozenset(["INT", "BOOL", "CHAR", "DOUBLE", "MARIN", "SAVOR", 
+                          "RELISH", "STIR","STR", "STRUC", "FLOAT", "DO", 
+                          "WHILE", "DIGEST", "MILD", "OMIT", "RELISH", "SPICY"])
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
     DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
@@ -10,16 +12,20 @@ class LexicalAnalyzer:
     IDENTIFIERS = set()
 
     token_d = {
-        
-        "int": "DT_INT",
-        "char": "DT_CHAR",
-        "float": "DT_FLOAT",
-        "double": "DT_DOUBLE",
-        "if": "IF_STM",
-        "else": "ELSE_STM",
-        "for": "LP_STM",
-        "while": "WHILE_STM",
-        "do": "DO_STM",
+        # keywords
+        "INT": "DT_INT",
+        "CHAR": "DT_CHAR",
+        "FLOAT": "DT_FLOAT",
+        "DOUBLE": "DT_DOUBLE",
+        "IF": "IF_STM",
+        "SAVOR": "ELSE_STM",
+        "STIR": "LP_STM",
+        "BOOL": "DT_BOOL",
+        "STR": "DT_STR",
+        "STRUCT": "DT_STRUCT",
+        "DO": "DO_STM",
+        "WHILE": "WHILE_STM",
+        # operators
         "=": "ASSIGN",
         "+=": "ADD_ASSIGN",
         "-=": "MINUS_ASSIGN",
@@ -42,6 +48,7 @@ class LexicalAnalyzer:
         "<": "LESS_THAN",
         ">=": "GREAT_OR_EQUAL",
         "<=": "LESS_OR_EQUAL",
+        # delimiters
         ";": "SEMICOLON",
         "(": "LPAREN",
         ")": "RPAREN",
@@ -56,17 +63,23 @@ class LexicalAnalyzer:
         '"': "DQOUT",
         ":": "COLON",
         ",": "COM",
-}
+        # reserved words
+        "DIGEST": "BREAK_STM",
+        "MILD": "FALSE_STM",
+        "OMIT": "CONTINUE_STM",
+        "RELISH": "ELSE_STM",
+        "SPICY": "TRUE_STM"
+    }
    
     @staticmethod
     def is_valid_identifier(identifier):
-    # Rules for a valid identifier
+        # Rules for a valid identifier
         return (
             identifier.isidentifier()
             and (identifier[0].isalpha() or identifier[0] == '_')
-            and identifier.lower() not in LexicalAnalyzer.KEYWORDS  # Check if the lowercase version is a keyword
+            and identifier.upper() not in LexicalAnalyzer.KEYWORDS
             and ' ' not in identifier
-            and len(identifier) <= 31  # Check maximum length
+            and len(identifier) <= 31
             and all(char.isalnum() or char in ['_'] for char in identifier)
         )
 
@@ -123,18 +136,36 @@ class LexicalAnalyzer:
                 while current_pos < input_length and input_program[current_pos] != '"':
                     lexeme += input_program[current_pos]
                     current_pos += 1
-                lexeme += '"'  # Include the closing double quotation mark in the lexeme
-                lexeme_token_pairs.append((lexeme, "STRING_LITERAL"))
-                current_pos += 1  # Move past the closing double quotation mark
 
-            elif char == "@":
+                if current_pos < input_length and input_program[current_pos] == '"':
+                    lexeme += '"'  # Include the closing double quotation mark in the lexeme
+                    lexeme_token_pairs.append((lexeme, "STRING_LITERAL"))
+                    current_pos += 1  # Move past the closing double quotation mark
+                else:
+                    lexeme_token_pairs.append((lexeme, "INVALID"))
+            
+            # Check for reserved keywords
+            elif char.isalpha() or char == '_':
                 identifier = ""
-                current_pos += 1  # Move past the "@"
                 while current_pos < input_length and (
-                        input_program[current_pos].isalnum() or input_program[current_pos] in ['-', '_']):
+                        input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
                     identifier += input_program[current_pos]
                     current_pos += 1
-                lexeme_token_pairs.append((f"@{identifier}", "IDENTIFIER"))
+
+                # Check if the identifier is a keyword, boolean literal, or reserved keyword
+                if identifier.upper() in LexicalAnalyzer.KEYWORDS:
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                elif identifier.lower() == "true":
+                    lexeme_token_pairs.append((identifier, "B_TRUE"))
+                elif identifier.lower() == "false":
+                    lexeme_token_pairs.append((identifier, "B_FALSE"))
+                elif identifier.upper() in LexicalAnalyzer.token_d:
+                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.upper(), "INVALID")))
+                elif LexicalAnalyzer.is_valid_identifier(identifier):
+                    lexeme_token_pairs.append((identifier, "IDENTIFIER"))
+                    LexicalAnalyzer.IDENTIFIERS.add(identifier)
+                else:
+                    lexeme_token_pairs.append((identifier, "INVALID"))
 
             # digit / numbers
             elif char.isdigit():
@@ -144,7 +175,7 @@ class LexicalAnalyzer:
                     current_pos += 1
 
                 if '.' in numeral:
-                # Check for float or double based on the number of decimal places
+                    # Check for float or double based on the number of decimal places
                     num_parts = numeral.split('.')
                     decimal_places = len(num_parts[1]) if len(num_parts) > 1 else 0
                     if decimal_places <= 7:
@@ -154,30 +185,7 @@ class LexicalAnalyzer:
                 else:
                     lexeme_token_pairs.append((numeral, "INTEGER_LITERAL"))
 
-            elif char.isalpha() or char == '_':
-                identifier = ""
-                while current_pos < input_length and (
-                        input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
-                    identifier += input_program[current_pos]
-                    current_pos += 1
-
-                # Check if the identifier is a keyword or boolean literal
-                if identifier.lower() in LexicalAnalyzer.KEYWORDS:
-                     lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
-                     current_pos += 1  # Add this line to skip the blank space after a keyword
-                elif identifier.lower() == "true":
-                    lexeme_token_pairs.append((identifier, "B_TRUE"))
-                elif identifier.lower() == "false":
-                    lexeme_token_pairs.append((identifier, "B_FALSE"))
-                elif identifier.lower() == "bool":
-                    lexeme_token_pairs.append((identifier, "DT_BOOL"))
-                elif LexicalAnalyzer.is_valid_identifier(identifier):
-                    lexeme_token_pairs.append((identifier, "IDENTIFIER"))
-                    LexicalAnalyzer.IDENTIFIERS.add(identifier)
-                else:
-                    lexeme_token_pairs.append((identifier, "INVALID"))
-                    
-            #compound operators
+            # compound operators
             elif char in LexicalAnalyzer.OPERATORS:
                 # Handle unary and compound assignment operators without spaces
                 lexeme, token = "", ""
@@ -222,26 +230,33 @@ class LexicalAnalyzer:
         return lexeme_token_pairs
 
 if __name__ == "__main__":
-    file_path = "sample.ipe"  # Change this to the desired file name
-    try:
-        with open(file_path, 'r') as file:
-            input_program = file.read()
-    except FileNotFoundError:
-        print(f"File not found: {file_path}")
+    file_extension = ".ipe"
+    files_with_extension = glob.glob(f"*{file_extension}")
+
+    if not files_with_extension:
+        print(f"No files found with '{file_extension}' extension.")
         exit()
 
-    if not input_program:
-        print("File is empty. Please provide valid code.")
-    else:
-        lexer = LexicalAnalyzer()
-        tokens = lexer.tokenize_and_categorize(input_program)
+    for file_path in files_with_extension:
+        try:
+            with open(file_path, 'r') as file:
+                input_program = file.read()
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
+            continue  # Continue to the next file if the current one is not found
 
-        # Save tokens to a table-like file
-        output_file_path = "tokens_output.txt"  # Change this to the desired output file name
+        if not input_program:
+            print(f"File {file_path} is empty. Please provide valid code.")
+        else:
+            lexer = LexicalAnalyzer()
+            tokens = lexer.tokenize_and_categorize(input_program)
 
-        with open(output_file_path, 'w') as output_file:
-            output_file.write("Lexeme\t\t\t\t\tToken\n")
-            for lexeme, token in tokens:
-                output_file.write(f"{lexeme.ljust(30)}{token}\n")
+            # Save tokens to a table-like file
+            output_file_path = f"{os.path.splitext(file_path)[0]}_lexer.txt"
 
-        print(f"Tokens saved to: {output_file_path}")
+            with open(output_file_path, 'w') as output_file:
+                output_file.write("Lexeme\t\t\t\t\t\t  Token\n")
+                for lexeme, token in tokens:
+                    output_file.write(f"{lexeme.ljust(30)}{token}\n")
+
+            print(f"Tokens saved to: {output_file_path}")

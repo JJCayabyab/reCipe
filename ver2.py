@@ -3,7 +3,7 @@ class LexicalAnalyzer:
                           "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
                           "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void",
                           "volatile", "while", "string", "class", "struct", "include"])
-    OPERATORS = frozenset(["++", "--", "+", "-", "*", "/", "%", "=", "<", ">", "<=", ">="])
+    OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
     DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "/*", "*/", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
     GENERAL = frozenset(["ERROR", "EOF"])
@@ -84,7 +84,7 @@ class LexicalAnalyzer:
                 continue
     
             # Handle single-line comments
-            elif input_program.startswith("//", current_pos):
+            elif input_program[current_pos:current_pos+2] == "//":
                 current_pos = input_program.find('\n', current_pos)
                 if current_pos == -1:
                     break
@@ -122,26 +122,18 @@ class LexicalAnalyzer:
                     lexeme_token_pairs.append((identifier, "INVALID"))
 
             elif char in LexicalAnalyzer.OPERATORS:
-                # Handle unary operators like '+', '-', '++', '--'
-                if input_program.startswith("++", current_pos) and (current_pos + 2 == input_length or not input_program[current_pos + 2].isalnum()):
-                    lexeme_token_pairs.append(("++", "INCRE"))
-                    current_pos += 2
-                elif input_program.startswith("--", current_pos) and (current_pos + 2 == input_length or not input_program[current_pos + 2].isalnum()):
-                    lexeme_token_pairs.append(("--", "DECRE"))
-                    current_pos += 2
-                else:
-                    # Handle relational operators like '==', '!=', '>', '<', '>=', '<='
-                    found_relational = False
-                    for lexeme, token in LexicalAnalyzer.token_d.items():
-                        if lexeme in LexicalAnalyzer.OPERATORS and input_program.startswith(lexeme, current_pos):
-                            lexeme_token_pairs.append((lexeme, token))
-                            current_pos += len(lexeme)
-                            found_relational = True
-                            break
+                # Handle unary and compound assignment operators without spaces
+                lexeme, token = "", ""
+                while current_pos < input_length and input_program[current_pos] in LexicalAnalyzer.OPERATORS:
+                    lexeme += input_program[current_pos]
+                    current_pos += 1
 
-                    if not found_relational:
-                        lexeme_token_pairs.append((char, LexicalAnalyzer.token_d.get(char, "INVALID")))
-                        current_pos += 1
+                if lexeme in LexicalAnalyzer.token_d:
+                    token = LexicalAnalyzer.token_d[lexeme]
+                elif len(lexeme) == 1:
+                    token = LexicalAnalyzer.token_d.get(lexeme, "INVALID")
+
+                lexeme_token_pairs.append((lexeme, token))
 
             else:
                 found_lexeme = False
@@ -152,27 +144,30 @@ class LexicalAnalyzer:
                         found_lexeme = True
                         break
 
-                if not found_lexeme:
-                    # Handle compound assignment operators without space between variable and operator
-                    if char in LexicalAnalyzer.OPERATORS and current_pos > 0 and input_program[current_pos - 1].isalpha():
-                        lexeme = input_program[current_pos - 1: current_pos + 1]
-                        token = LexicalAnalyzer.token_d.get(lexeme, "INVALID")
-                        lexeme_token_pairs.append((lexeme, token))
-                        current_pos += 1
-                    else:
-                        lexeme_token_pairs.append((char, "INVALID"))
-                        current_pos += 1
 
         return lexeme_token_pairs
 
 if __name__ == "__main__":
-    input_program = input("Enter Your Code: ")
+    file_path = "sample.ipe"  # Change this to the desired file name
+    try:
+        with open(file_path, 'r') as file:
+            input_program = file.read()
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        exit()
+
     if not input_program:
-        print("Please enter valid code.")
+        print("File is empty. Please provide valid code.")
     else:
         lexer = LexicalAnalyzer()
         tokens = lexer.tokenize_and_categorize(input_program)
 
-        print("Lexeme\t\t\tToken\n")
-        for lexeme, token in tokens:
-            print(f"{lexeme}\t\t\t{token}")
+        # Save tokens to a table-like file
+        output_file_path = "tokens_output.txt"  # Change this to the desired output file name
+
+        with open(output_file_path, 'w') as output_file:
+            output_file.write("Lexeme\t\t\tToken\n")
+            for lexeme, token in tokens:
+                output_file.write(f"{lexeme.ljust(20)}{token}\n")
+
+        print(f"Tokens saved to: {output_file_path}")

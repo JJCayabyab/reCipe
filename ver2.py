@@ -10,6 +10,7 @@ class LexicalAnalyzer:
     IDENTIFIERS = set()
 
     token_d = {
+        
         "int": "DT_INT",
         "char": "DT_CHAR",
         "float": "DT_FLOAT",
@@ -67,7 +68,7 @@ class LexicalAnalyzer:
             and identifier.lower() not in LexicalAnalyzer.KEYWORDS  # Check if the lowercase version is a keyword
             and ' ' not in identifier
             and len(identifier) <= 31  # Check maximum length
-            and all(char.isalnum() or char in ['-', '_'] for char in identifier)
+            and all(char.isalnum() or char in ['_'] for char in identifier)
         )
 
     @staticmethod
@@ -78,25 +79,25 @@ class LexicalAnalyzer:
 
         while current_pos < input_length:
             char = input_program[current_pos]
-                
+
             # For whitespace
             if char.isspace():
                 current_pos += 1
                 continue
-    
+
             # Handle single-line comments
-            elif input_program[current_pos:current_pos+2] == "//":
+            elif input_program[current_pos:current_pos + 2] == "//":
                 current_pos = input_program.find('\n', current_pos)
                 if current_pos == -1:
                     break
-          
+
             # Handle multi-line comments using #
             elif input_program.startswith("#", current_pos):
                 current_pos = input_program.find('#', current_pos + 1)
                 if current_pos == -1:
                     break
                 current_pos += 1
-            
+
             elif char == "'":
                 # Handle single quotation string literal
                 lexeme = char  # Start with the opening single quotation mark
@@ -119,6 +120,16 @@ class LexicalAnalyzer:
                 lexeme_token_pairs.append((lexeme, "D_STRL"))
                 current_pos += 1  # Move past the closing double quotation mark
 
+            # Check if "@" is a placeholder for an identifier
+            elif char == "@":
+                identifier = ""
+                current_pos += 1  # Move past the "@"
+                while current_pos < input_length and (
+                        input_program[current_pos].isalnum() or input_program[current_pos] in ['-', '_']):
+                    identifier += input_program[current_pos]
+                    current_pos += 1
+                lexeme_token_pairs.append((f"@{identifier}", "IDENTIFIER"))
+
             # digit / numbers
             elif char.isdigit():
                 numeral = ""
@@ -130,7 +141,7 @@ class LexicalAnalyzer:
             elif char.isalpha() or char == '_':
                 identifier = ""
                 while current_pos < input_length and (
-                        input_program[current_pos].isalnum() or input_program[current_pos] in ['-', '_']):
+                        input_program[current_pos].isalnum() or input_program[current_pos] in ['_']):
                     identifier += input_program[current_pos]
                     current_pos += 1
 
@@ -143,7 +154,8 @@ class LexicalAnalyzer:
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
                 else:
                     lexeme_token_pairs.append((identifier, "INVALID"))
-
+                    
+            #compound operators
             elif char in LexicalAnalyzer.OPERATORS:
                 # Handle unary and compound assignment operators without spaces
                 lexeme, token = "", ""
@@ -166,7 +178,6 @@ class LexicalAnalyzer:
                         current_pos += len(lexeme)
                         found_lexeme = True
                         break
-
 
         return lexeme_token_pairs
 

@@ -133,10 +133,20 @@ class LexicalAnalyzer:
             # digit / numbers
             elif char.isdigit():
                 numeral = ""
-                while current_pos < input_length and input_program[current_pos].isdigit():
+                while current_pos < input_length and (input_program[current_pos].isdigit() or input_program[current_pos] == '.'):
                     numeral += input_program[current_pos]
                     current_pos += 1
-                lexeme_token_pairs.append((numeral, "NUMERAL"))
+
+                if '.' in numeral:
+                # Check for float or double based on the number of decimal places
+                    num_parts = numeral.split('.')
+                    decimal_places = len(num_parts[1]) if len(num_parts) > 1 else 0
+                    if decimal_places <= 7:
+                        lexeme_token_pairs.append((numeral, "FLOAT_LITERAL"))
+                    else:
+                        lexeme_token_pairs.append((numeral, "DOUBLE_LITERAL"))
+                else:
+                    lexeme_token_pairs.append((numeral, "INTEGER_LITERAL"))
 
             elif char.isalpha() or char == '_':
                 identifier = ""

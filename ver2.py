@@ -82,6 +82,20 @@ class LexicalAnalyzer:
             if char.isspace():
                 current_pos += 1
                 continue
+    
+            # Handle single-line comments
+            elif input_program.startswith("//", current_pos):
+                current_pos = input_program.find('\n', current_pos)
+                if current_pos == -1:
+                    break
+
+             # Handle multi-line comments using #
+            elif input_program.startswith("#", current_pos):
+                current_pos = input_program.find('#', current_pos + 1)
+                if current_pos == -1:
+                    break
+                current_pos += 1
+
 
             if char.isdigit():
                 numeral = ""
@@ -100,15 +114,12 @@ class LexicalAnalyzer:
                 # Check if the identifier is a keyword
                 if identifier.lower() in LexicalAnalyzer.KEYWORDS:
                     lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
+                    current_pos += 1  # Add this line to skip the blank space after a keyword
                 elif LexicalAnalyzer.is_valid_identifier(identifier):
                     lexeme_token_pairs.append((identifier, "IDENTIFIER"))
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
                 else:
                     lexeme_token_pairs.append((identifier, "INVALID"))
-
-            elif char in LexicalAnalyzer.OPERATORS:
-                lexeme_token_pairs.append((char, LexicalAnalyzer.token_d.get(char, "INVALID")))
-                current_pos += 1
 
             elif char in LexicalAnalyzer.OPERATORS:
                 # Handle unary operators like '+', '-', '++', '--'
@@ -119,13 +130,18 @@ class LexicalAnalyzer:
                     lexeme_token_pairs.append(("--", "DECRE"))
                     current_pos += 2
                 else:
-                    lexeme_token_pairs.append((char, LexicalAnalyzer.token_d.get(char, "INVALID")))
-                    current_pos += 1
+                    # Handle relational operators like '==', '!=', '>', '<', '>=', '<='
+                    found_relational = False
+                    for lexeme, token in LexicalAnalyzer.token_d.items():
+                        if lexeme in LexicalAnalyzer.OPERATORS and input_program.startswith(lexeme, current_pos):
+                            lexeme_token_pairs.append((lexeme, token))
+                            current_pos += len(lexeme)
+                            found_relational = True
+                            break
 
-            elif char in LexicalAnalyzer.OPERATORS:
-                # Handle relational operators like '==', '!=', '>', '<', '>=', '<='
-                lexeme_token_pairs.append((char, LexicalAnalyzer.token_d.get(char, "INVALID")))
-                current_pos += 1
+                    if not found_relational:
+                        lexeme_token_pairs.append((char, LexicalAnalyzer.token_d.get(char, "INVALID")))
+                        current_pos += 1
 
             else:
                 found_lexeme = False

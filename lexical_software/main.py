@@ -3,11 +3,13 @@ from tkinter import messagebox
 from lexical_analyzer import LexicalAnalyzer
 from tkinter import messagebox, Canvas, Text, Button, PhotoImage, Scrollbar
 
+# file directory
 def relative_to_assets(file_path):
     base_path = r"C:\Users\Josh\Documents\VSCODE python\LEXICAL\Lexical Software"
     absolute_path = base_path + "\\" + file_path
     return absolute_path
 
+# run the code syntax
 def analyze_code():
     input_program = entry_1.get("1.0", tk.END)
 
@@ -23,23 +25,25 @@ def analyze_code():
     # Add headers
     header = f"{'Lexeme':<20}{'Token':^15}\n"
     entry_2.insert(tk.END, header)
-
+    
+    #table for the tokens
     for lexeme, token in tokens:
         formatted_lexeme = f"{lexeme:<20}"
         formatted_token = f"{token:^15}"
         entry_2.insert(tk.END, f"{formatted_lexeme}{formatted_token}\n")
-
+        
+# clear the textbos
 def clear_text():
     entry_1.delete("1.0", tk.END)
     entry_2.delete("1.0", tk.END)
 
+# save the table in txt file
 def download_output():
     output_content = entry_2.get("1.0", tk.END)
 
     if not output_content.strip():
         messagebox.showerror("Error", "There is no output to download!")
         return
-
     try:
         with open("tokens.txt", "w") as output_file:
             output_file.write(output_content)
@@ -48,7 +52,6 @@ def download_output():
         messagebox.showerror("Error", f"Failed to save output: {e}")
         
 window = tk.Tk()
-
 window.geometry("1280x720")
 window.configure(bg="#FFFFFF")
 
@@ -61,6 +64,7 @@ canvas = Canvas(
     highlightthickness=0,
     relief="ridge"
 )
+
 canvas.place(x=0, y=0)
 canvas.create_rectangle(
     0.0,
@@ -68,7 +72,8 @@ canvas.create_rectangle(
     1280.0,
     720.0,
     fill="#534C4C",
-    outline="")
+    outline=""
+)
 
 entry_image_1 = PhotoImage(
     file=relative_to_assets("entry_1.png"))
@@ -77,6 +82,7 @@ entry_bg_1 = canvas.create_image(
     355.5,
     image=entry_image_1
 )
+
 entry_1 = Text(
     bd=0,
     bg="#E6E6E6",
@@ -111,22 +117,23 @@ entry_2.place(
     width=417.0,
     height=542.0
 )
-image_image_1 = PhotoImage(
-    file=relative_to_assets("image_1.png"))
-image_1 = canvas.create_image(
+label_1 = "ReCipe"
+label_1 = canvas.create_text(
     388.0,
     61.0,
-    image=image_image_1
+    text=label_1,
+    font=("Impact", 60),
+    fill="#E6E6E6"
 )
 
-image_image_2 = PhotoImage(
-    file=relative_to_assets("image_2.png"))
-image_2 = canvas.create_image(
+label_2 = "SYMBOL TABLE"
+label_2 = canvas.create_text(
     997.0,
     65.0,
-    image=image_image_2
+    text=label_2,
+    font=("Impact", 50),
+    fill="#E6E6E6"
 )
-
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
 button_1 = Button(

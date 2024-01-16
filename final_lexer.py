@@ -70,7 +70,14 @@ class LexicalAnalyzer:
         "MILD": "FALSE_STM",
         "OMIT": "CONTINUE_STM",
         "RELISH": "ELSE_STM",
-        "SPICY": "TRUE_STM"
+        "SPICY": "TRUE_STM",
+        # new features
+        "createTable": "CREATE_TAB",
+        "setCellValue": "SET_CELL_VAL",
+        "printTable": "PRINT_TAB",
+        "freeTable": "FREE_TAB",    
+        "QuotientRem": "QUO_REM",
+        "unitConvert": "UNIT_CONV"
     }
    
     @staticmethod
@@ -180,7 +187,11 @@ class LexicalAnalyzer:
                     lexeme_token_pairs.append((identifier, "IDENTIFIER"))
                     LexicalAnalyzer.IDENTIFIERS.add(identifier)
                 else:
-                    lexeme_token_pairs.append((identifier, "INVALID"))
+                # Check if the identifier is one of the new function names
+                    if identifier.lower() in LexicalAnalyzer.token_d:
+                        lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d[identifier.lower()]))
+                    else:
+                        lexeme_token_pairs.append((identifier, "INVALID"))
 
             # digit / numbers
             elif char.isdigit():

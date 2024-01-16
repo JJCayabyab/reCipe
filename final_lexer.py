@@ -8,7 +8,6 @@ class LexicalAnalyzer:
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
     DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":"])
     NUMERALS = frozenset("0123456789")
-    GENERAL = frozenset(["ERROR", "EOF"])
     IDENTIFIERS = set()
     FLOAT_VAL = 7
     ID_VAL =31

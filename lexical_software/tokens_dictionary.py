@@ -1,12 +1,13 @@
 # DICTIONARY
 DICTIONARY = {
         # keywords
+        "REC": "REC_ENTRY",
+        "SER": "END_EXEC",
         "INT": "DT_INT",
         "CHAR": "DT_CHAR",
         "FLOAT": "DT_FLOAT",
         "DOUBLE": "DT_DOUBLE",
-        "IF": "IF_STM",
-        "SAVOR": "ELSE_STM",
+        "SAVOR": "IF_STM",
         "STIR": "LP_STM",
         "BOOL": "DT_BOOL",
         "STR": "DT_STR",
@@ -51,6 +52,8 @@ DICTIONARY = {
         '"': "DQOUT",
         ":": "COLON",
         ",": "COM",
+        "<<": "START_MARK",
+        ">>": "END_MARK",
         # reserved words
         "DIGEST": "BREAK_STM",
         "MILD": "FALSE_STM",
@@ -58,10 +61,10 @@ DICTIONARY = {
         "RELISH": "ELSE_STM",
         "SPICY": "TRUE_STM",
         # new features
-        "createTable": "CREATE_TAB",
-        "setCellValue": "SET_CELL_VAL",
-        "printTable": "PRINT_TAB",
-        "freeTable": "FREE_TAB",    
-        "QuotientRem": "QUO_REM",
-        "unitConvert": "UNIT_CONV"
+        # "createTable": "CREATE_TAB",
+        # "setCellValue": "SET_CELL_VAL",
+        # "printTable": "PRINT_TAB",
+        # "freeTable": "FREE_TAB",    
+        # "QuotientRem": "QUO_REM",
+        # "unitConvert": "UNIT_CONV"
     }

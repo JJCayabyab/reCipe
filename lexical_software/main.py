@@ -1,81 +1,193 @@
 import tkinter as tk
-from tkinter import scrolledtext
 from tkinter import messagebox
 from lexical_analyzer import LexicalAnalyzer
+from tkinter import messagebox, Canvas, Text, Button, PhotoImage, Scrollbar
 
-class LexicalAnalyzerApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("Lexical Analyzer")
-        master.resizable(False, False)  # Make the window not resizable
+def relative_to_assets(file_path):
+    base_path = r"C:\Users\Josh\Documents\VSCODE python\LEXICAL\Lexical Software"
+    absolute_path = base_path + "\\" + file_path
+    return absolute_path
 
-        # Top Frame for scrolled text areas
-        top_frame = tk.Frame(master)
-        top_frame.pack(side=tk.TOP)
+def analyze_code():
+    input_program = entry_1.get("1.0", tk.END)
 
-        # Scrolled Text Area 1
-        self.text_area = scrolledtext.ScrolledText(top_frame, wrap=tk.WORD, width=80, height=25)
-        self.text_area.grid(row=0, column=0, padx=10, pady=20)
+    if not input_program.strip():
+        messagebox.showerror("Error", "Enter a Code!")
+        return
 
-        # Scrolled Text Area 2
-        self.output_area = scrolledtext.ScrolledText(top_frame, wrap=tk.WORD, width=70, height=25)
-        self.output_area.grid(row=0, column=1, padx=10, pady=20)
+    lexer = LexicalAnalyzer()
+    tokens = lexer.tokenize_and_categorize(input_program)
 
-        # Analyze Button
-        self.analyze_button = tk.Button(top_frame, text="Analyze", command=self.analyze_code, width=30, height=3, bg='blue')
-        self.analyze_button.grid(row=1, column=0,  )
+    entry_2.delete("1.0", tk.END)
 
-        # Clear Button
-        self.clear_button = tk.Button(top_frame, text="Clear", command=self.clear_text, width=30, height=3, bg='red')
-        self.clear_button.grid(row=1, column=1, padx=10, pady=10)
+    # Add headers
+    header = f"{'Lexeme':<20}{'Token':^15}\n"
+    entry_2.insert(tk.END, header)
 
-        # Download Button
-        self.download_button = tk.Button(top_frame, text="Download", command=self.download_output, width=30, height=3, bg='green')
-        self.download_button.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+    for lexeme, token in tokens:
+        formatted_lexeme = f"{lexeme:<20}"
+        formatted_token = f"{token:^15}"
+        entry_2.insert(tk.END, f"{formatted_lexeme}{formatted_token}\n")
 
+def clear_text():
+    entry_1.delete("1.0", tk.END)
+    entry_2.delete("1.0", tk.END)
+
+def download_output():
+    output_content = entry_2.get("1.0", tk.END)
+
+    if not output_content.strip():
+        messagebox.showerror("Error", "There is no output to download!")
+        return
+
+    try:
+        with open("tokens.txt", "w") as output_file:
+            output_file.write(output_content)
+        messagebox.showinfo("Success", "Output saved to 'tokens.txt'")
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to save output: {e}")
         
-    def analyze_code(self):
-        input_program = self.text_area.get("1.0", tk.END)
+window = tk.Tk()
 
-        if not input_program.strip():
-            messagebox.showerror("Error", "Please enter code for analysis.")
-            return
+window.geometry("1280x720")
+window.configure(bg="#FFFFFF")
 
-        lexer = LexicalAnalyzer()
-        tokens = lexer.tokenize_and_categorize(input_program)
+canvas = Canvas(
+    window,
+    bg="#FFFFFF",
+    height=720,
+    width=1280,
+    bd=0,
+    highlightthickness=0,
+    relief="ridge"
+)
+canvas.place(x=0, y=0)
+canvas.create_rectangle(
+    0.0,
+    0.0,
+    1280.0,
+    720.0,
+    fill="#534C4C",
+    outline="")
 
-        # Clear the output area before displaying new tokens
-        self.output_area.delete("1.0", tk.END)
+entry_image_1 = PhotoImage(
+    file=relative_to_assets("entry_1.png"))
+entry_bg_1 = canvas.create_image(
+    396.0,
+    355.5,
+    image=entry_image_1
+)
+entry_1 = Text(
+    bd=0,
+    bg="#E6E6E6",
+    fg="#000716",
+    highlightthickness=0,
+    font=("Consolas", 14)
+)
+entry_1.place(
+    x=82.0,
+    y=126.0,
+    width=618.0,
+    height=457.0
+)
 
-        for lexeme, token in tokens:
-            formatted_lexeme = f"{lexeme:<20}"
-            formatted_token = f"{token:^15}"
-            self.output_area.insert(tk.END, f"{formatted_lexeme}{formatted_token}\n")
+entry_image_2 = PhotoImage(
+    file=relative_to_assets("entry_2.png"))
+entry_bg_2 = canvas.create_image(
+    997.5,
+    398.0,
+    image=entry_image_2
+)
+entry_2 = Text(
+    bd=0,
+    bg="#E6E6E6",
+    fg="#000716",
+    highlightthickness=0,
+    font=("Consolas", 14)
+)
+entry_2.place(
+    x=789.0,
+    y=126.0,
+    width=417.0,
+    height=542.0
+)
+image_image_1 = PhotoImage(
+    file=relative_to_assets("image_1.png"))
+image_1 = canvas.create_image(
+    388.0,
+    61.0,
+    image=image_image_1
+)
 
-    def clear_text(self):
-        # Clear both the input and output text areas
-        self.text_area.delete("1.0", tk.END)
-        self.output_area.delete("1.0", tk.END)
+image_image_2 = PhotoImage(
+    file=relative_to_assets("image_2.png"))
+image_2 = canvas.create_image(
+    997.0,
+    65.0,
+    image=image_image_2
+)
 
-    def download_output(self):
-        output_content = self.output_area.get("1.0", tk.END)
+button_image_1 = PhotoImage(
+    file=relative_to_assets("button_1.png"))
+button_1 = Button(
+    image=button_image_1,
+    borderwidth=3,
+    highlightthickness=3,
+    command=analyze_code,
+    relief="raised"
+)
+button_1.place(
+    x=66.967529296875,
+    y=598.0,
+    width=200.06944274902344,
+    height=74.0
+)
 
-        if not output_content.strip():
-            messagebox.showerror("Error", "There is no output to download.")
-            return
+button_image_2 = PhotoImage(
+    file=relative_to_assets("button_2.png"))
+button_2 = Button(
+    image=button_image_2,
+    borderwidth=3,
+    highlightthickness=3,
+    command=clear_text,
+    relief="raised"
+)
+button_2.place(
+    x=296.0,
+    y=598.0,
+    width=201.0,
+    height=72.0
+)
 
-        try:
-            with open("output.txt", "w") as output_file:
-                output_file.write(output_content)
-            messagebox.showinfo("Success", "Output saved to 'output.txt'")
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to save output: {e}")
+button_image_3 = PhotoImage(
+    file=relative_to_assets("button_3.png"))
+button_3 = Button(
+    image=button_image_3,
+    borderwidth=3,
+    highlightthickness=3,
+    command=download_output,
+    relief="raised",
+   
+)
+button_3.place(
+    x=525.0,
+    y=598.0,
+    width=201.0,
+    height=72.0
+)
 
-def main():
-    root = tk.Tk()
-    root.geometry("1280x720")
-    app = LexicalAnalyzerApp(root)
-    root.mainloop()
+# Add vertical scrollbar to entry_1
+scrollbar_1 = Scrollbar(window, command=entry_1.yview)
+scrollbar_1.place(x=708, y=136, height=425)
+entry_1.config(yscrollcommand=scrollbar_1.set)
 
-if __name__ == "__main__":
-    main()
+# Add both vertical and horizontal scrollbars to entry_2
+scrollbar_2_y = Scrollbar(window, command=entry_2.yview)
+scrollbar_2_x = Scrollbar(window, command=entry_2.xview, orient=tk.HORIZONTAL)
+scrollbar_2_y.place(x=1205, y=146, height=500)
+entry_2.config(yscrollcommand=scrollbar_2_y.set)
+
+
+window.resizable(False, False)
+window.title("ReCipe: Lexical Analyzer Software")
+window.mainloop()

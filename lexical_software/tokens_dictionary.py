@@ -12,6 +12,7 @@ DICTIONARY = {
         "BOOL": "DT_BOOL",
         "STR": "DT_STR",
         "STRUCT": "DT_STRUCT",
+        "MARIN": "DT_CONST",
         "DO": "DO_STM",
         "WHILE": "WHILE_STM",
         # operators
@@ -60,11 +61,4 @@ DICTIONARY = {
         "OMIT": "CONTINUE_STM",
         "RELISH": "ELSE_STM",
         "SPICY": "TRUE_STM",
-        # new features
-        # "createTable": "CREATE_TAB",
-        # "setCellValue": "SET_CELL_VAL",
-        # "printTable": "PRINT_TAB",
-        # "freeTable": "FREE_TAB",    
-        # "QuotientRem": "QUO_REM",
-        # "unitConvert": "UNIT_CONV"
     }

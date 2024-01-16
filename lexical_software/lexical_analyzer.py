@@ -3,9 +3,9 @@ from tokens_dictionary import DICTIONARY
 class LexicalAnalyzer:
     KEYWORDS = frozenset(["INT", "BOOL", "CHAR", "DOUBLE", "MARIN", "SAVOR", "RELISH", 
                           "STIR","STR", "STRUCT", "FLOAT", "DO", "WHILE", "DIGEST", 
-                          "MILD", "OMIT", "SPICY", "SWITCH", "CASE"])
+                          "MILD", "OMIT", "SPICY", "SWITCH", "CASE", "REC", "SER"])
     OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
-    DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":"])
+    DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":", "<<", ">>"])
     NUMERALS = frozenset("0123456789")
     IDENTIFIERS = set()
     FLOAT_VAL = 7

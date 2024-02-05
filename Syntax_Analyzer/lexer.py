@@ -14,7 +14,7 @@ class LexicalAnalyzer:
     IDENTIFIERS = set()
     FLOAT_VAL = 7
     DOUBLE_VAL = 15
-    ID_VAL =31
+    ID_VAL = 31
     token_d = DICTIONARY
     
     @staticmethod

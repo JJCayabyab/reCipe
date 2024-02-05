@@ -59,7 +59,7 @@ directory_path = r"C:\Users\Josh\Documents\VSCODE python\PARSER-FINAL"
 if os.path.exists(directory_path):
     # Loop through files with ".ck" extension in the directory
     for filename in os.listdir(directory_path):
-        if filename.endswith(".ck"):
+        if filename.endswith(".up"):
             file_path = os.path.join(directory_path, filename)
             print(f"Processing file: {file_path}")
             

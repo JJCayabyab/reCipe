@@ -80,6 +80,16 @@ RD = {
 
 # for syntax analyzer
 TOKEN_OD = set(OD.values())
-TOKEN_KD = set(OD.values())
-TOKEN_DD = set(OD.values())
-TOKEN_RD = set(OD.values())
+TOKEN_KD = set(KD.values())  
+TOKEN_DD = set(DD.values())  
+TOKEN_RD = set(RD.values())  
+
+KEY = {"ST", "ED", "INT", "CR", "FT", "DB", "IF", "FOR", "BL", "STR", "SCT", "CT", "DO", "WH", "EL"}
+
+OPER = {"ASS", "ADD_ASS", "MINUS_ASS", "MULTI_ASS", "DIV_ASS", "MOD_ASS", 
+            "ADD", "MIN", "MUL", "DIV", "MOD", "INC", "DEC", "L_NOT", "L_OR", "L_AND", "E", "NE", "GT", "LT", "GOE", "LOE"}
+
+DELI = {"SEMI", "LP", "RP", "LB", "RB", "LC", "RC", "SC", "MM", "SP", "SQ", "DQT", "COL", "COM", "SM", "EM"}
+
+RES = {"BK", "FA", "CON", "EL", "TR"}
+

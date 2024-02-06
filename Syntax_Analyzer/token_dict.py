@@ -1,5 +1,5 @@
 # DICTIONARY
-DICTIONARY = {
+KD = {
         # keywords
         "START": "ST",
         "END": "ED",
@@ -15,7 +15,13 @@ DICTIONARY = {
         "CONST": "CT",
         "DO": "DO",
         "WHILE": "WH",
-        # operators
+        "ELSE":"EL"
+       
+    }
+
+OD = {
+    
+    # operators
         "=": "ASS",
         "+=": "ADD_ASS",
         "-=": "MINUS_ASS",
@@ -38,7 +44,12 @@ DICTIONARY = {
         "<": "LT",
         ">=": "GOE",
         "<=": "LOE",
-        # delimiters
+        
+}
+
+DD = {
+    
+    # delimiters
         ";": "SEMI",
         "(": "LP",
         ")": "RP",
@@ -55,10 +66,20 @@ DICTIONARY = {
         ",": "COM",
         "<<": "SM",
         ">>": "EM",
-        # reserved words
+}
+
+RD = {
+    
+         # reserved words
         "BREAK": "BK",
         "FALSE": "FA",
         "CONT": "CON",
         "ELSE": "EL",
         "TRUE": "TR",
-    }
+}
+
+# for syntax analyzer
+TOKEN_OD = set(OD.values())
+TOKEN_KD = set(OD.values())
+TOKEN_DD = set(OD.values())
+TOKEN_RD = set(OD.values())

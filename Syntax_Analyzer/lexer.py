@@ -1,21 +1,19 @@
 from token_dict import DICTIONARY
 
-####################################
-#             LEXER                #          
-####################################
-
-class LexicalAnalyzer:
-    KEYWORDS = frozenset(["INT", "BOOL", "CHAR", "DOUBLE", "CONST", "IF", "ELSE", 
+KEYWORDS = frozenset(["INT", "BOOL", "CHAR", "DOUBLE", "CONST", "IF", "ELSE", 
                           "FOR","STR", "STRUCT", "FLOAT", "DO", "WHILE", "BREAK", 
                           "FALSE", "CONT", "TRUE", "PICK", "CASE", "START", "END"])
-    OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
-    DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":", "<<", ">>"])
-    NUMERALS = frozenset("0123456789")
-    IDENTIFIERS = set()
-    FLOAT_VAL = 7
-    DOUBLE_VAL = 15
-    ID_VAL = 31
-    token_d = DICTIONARY
+OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
+DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":", "<<", ">>"])
+NUMERALS = frozenset("0123456789")
+IDENTIFIERS = set()
+FLOAT_VAL = 7
+DOUBLE_VAL = 15
+ID_VAL = 31
+token_d = DICTIONARY
+
+class LexicalAnalyzer:
+   
     
     @staticmethod
     def is_valid_identifier(identifier):
@@ -23,9 +21,9 @@ class LexicalAnalyzer:
         return (
             identifier.isidentifier()
             and (identifier[0].isalpha() or identifier[0] == '_')
-            and identifier.lower() not in LexicalAnalyzer.KEYWORDS  # Convert to lowercase for case-insensitivity
+            and identifier.lower() not in KEYWORDS  # Convert to lowercase for case-insensitivity
             and ' ' not in identifier
-            and len(identifier) <= LexicalAnalyzer.ID_VAL
+            and len(identifier) <= ID_VAL
             and all(char.isalnum() or char in ['_'] for char in identifier)
         )
 
@@ -118,21 +116,21 @@ class LexicalAnalyzer:
                     current_pos += 1
 
                 # Check if the identifier is a keyword, boolean literal, or reserved keyword
-                if identifier.isupper() and identifier in LexicalAnalyzer.KEYWORDS:
-                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier, "INVALID")))
+                if identifier.isupper() and identifier in KEYWORDS:
+                    lexeme_token_pairs.append((identifier, token_d.get(identifier, "INVALID")))
                 elif identifier.lower() == "true":
-                    lexeme_token_pairs.append((identifier, "B_TRUE"))
+                    lexeme_token_pairs.append((identifier, "T"))
                 elif identifier.lower() == "false":
-                    lexeme_token_pairs.append((identifier, "B_FALSE"))
-                elif identifier.lower() in LexicalAnalyzer.KEYWORDS:  # Convert to lowercase for case-sensitivity
-                    lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d.get(identifier.lower(), "INVALID")))
+                    lexeme_token_pairs.append((identifier, "F"))
+                elif identifier.lower() in KEYWORDS:  # Convert to lowercase for case-sensitivity
+                    lexeme_token_pairs.append((identifier, token_d.get(identifier.lower(), "INVALID")))
                 elif LexicalAnalyzer.is_valid_identifier(identifier):
                     lexeme_token_pairs.append((identifier, "ID"))
-                    LexicalAnalyzer.IDENTIFIERS.add(identifier)
+                    IDENTIFIERS.add(identifier)
                 else:
                 # Check if the identifier is one of the new function names
-                    if identifier.lower() in LexicalAnalyzer.token_d:
-                        lexeme_token_pairs.append((identifier, LexicalAnalyzer.token_d[identifier.lower()]))
+                    if identifier.lower() in token_d:
+                        lexeme_token_pairs.append((identifier, token_d[identifier.lower()]))
                     else:
                         lexeme_token_pairs.append((identifier, "INVALID"))
 
@@ -148,30 +146,30 @@ class LexicalAnalyzer:
                         num_parts = numeral.split('.')
                         decimal_places = len(num_parts[1]) if len(num_parts) > 1 else 0
 
-                        if decimal_places <= LexicalAnalyzer.FLOAT_VAL:
-                            lexeme_token_pairs.append((numeral, "FV"))
-                        elif decimal_places <= LexicalAnalyzer.DOUBLE_VAL:
-                            lexeme_token_pairs.append((numeral, "DV"))
+                        if decimal_places <= FLOAT_VAL:
+                            lexeme_token_pairs.append((numeral, "FL"))
+                        elif decimal_places <= DOUBLE_VAL:
+                            lexeme_token_pairs.append((numeral, "DL"))
                 else:
-                    lexeme_token_pairs.append((numeral, "IV"))
-
+                    lexeme_token_pairs.append((numeral, "IL"))
+            
             # compound operators
-            elif char in LexicalAnalyzer.OPERATORS:
+            elif char in OPERATORS:
                 # Handle unary and compound assignment operators without spaces
                 lexeme, token = "", ""
-                while current_pos < input_length and input_program[current_pos] in LexicalAnalyzer.OPERATORS:
+                while current_pos < input_length and input_program[current_pos] in OPERATORS:
                     lexeme += input_program[current_pos]
                     current_pos += 1
 
                 # Check if lexeme is in the dictionary, otherwise mark it as "INVALID"
-                token = LexicalAnalyzer.token_d.get(lexeme, "INVALID")
+                token = token_d.get(lexeme, "INVALID")
 
                 lexeme_token_pairs.append((lexeme, token))
 
             else:
                 found_lexeme = False
 
-                for lexeme, token in LexicalAnalyzer.token_d.items():
+                for lexeme, token in token_d.items():
                     if input_program.startswith(lexeme, current_pos):
                         lexeme_token_pairs.append((lexeme, token))
                         current_pos += len(lexeme)
@@ -196,11 +194,6 @@ class LexicalAnalyzer:
 
         # Move the return statement outside the while loop
         return lexeme_token_pairs
-    
-####################################
-#              PARSER              #          
-####################################
-
 
 
   

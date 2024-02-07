@@ -28,11 +28,11 @@ def analyze_code(input_program):
     lexer = LexicalAnalyzer()
     tokens = lexer.tokenize_and_categorize(input_program)
     
-    result = []
-
-    # Format tokens for display
-    for lexeme, token in tokens:
-        result.append(f"{lexeme.ljust(10)}{token.ljust(20)}")
+    # Use a generator expression to yield formatted tokens
+    formatted_tokens = (token for _, token in tokens)
+    
+    # Join the formatted tokens
+    result = ",".join(formatted_tokens)
 
     return result
 
@@ -43,10 +43,9 @@ def download_output(file_name, output_content):
         return False
 
     try:
-        with open(file_name, "w") as output_file:
-            output_file.write("Lexeme\tToken\n")  
+        with open(file_name, "w") as output_file: 
             for result in output_content:
-                output_file.write(result + '\n')
+                output_file.write(result)
         print(f"Output saved to {file_name}")
         return True
     except Exception as e:

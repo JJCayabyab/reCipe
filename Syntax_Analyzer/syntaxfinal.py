@@ -1,10 +1,12 @@
+from token_dict import *
+
 class Parser:
-    
-    def init(self, tokens):
+    def __init__(self, tokens):
         self.tokens = tokens
         self.index = -1
+        self.current = None
         self.advance()
-
+    
     def advance(self):
         self.index += 1
         if self.index < len(self.tokens):
@@ -12,79 +14,262 @@ class Parser:
         else:
             self.current = None
         return self.current
-
-
-    def structure():
-        global i, tokenList
+ 
+    def structure(self):
         if self.current == 'EOF':
             return True
-        pass
-        syntaxError("Syntax Error: Invalid start rule")
+        if self.multi_statement():
+            self.structure()
+        raise SyntaxError("Syntax Error: Invalid start rule")
     
-    def start():
-        global i, tokenList
-        if self.current == "ST" and tokenList[i+1] == "SM":
-            if self.current == "ED" and tokenList[i+1].type == "EM":
-                i += 2
+    def start (self):
+        if self.current[0] == 'ST' and self.current[1] == 'SM':
+            self.advance()
+            self.body()
+            if self.current[0] == 'ED' and self.current[1] == 'EM':
+                self.advance()
                 return True
         return False
     
-        
-    def body():
-        multi_stm()
-        
-    def multi_stm():
-        if self.current == 'EOF':
-            return False
-        if single_stm():
-            multi_stm()
+    def body(self):
+        self.multi_statement()
             
-    def single_stm():
+    def multi_statement(self):
         if self.current == 'EOF':
-            return False
-        elif (self.current == "DT" and tokenList[i+1].type != "DEFINE"):
-            dec()
-            single_stm()            
-        elif self.current == "ID":
-            assign_st()
-        elif self.current == "CALL_FUNC":
-            func_call()
-            single_stm()
-        elif self.current in ["INC", "DEC"]:
-            inc_dec_st()
-        elif self.current == "IF":
-            if_else()
-            single_stm()
-        elif (self.current in ['DT', 'VOID'] and tokenList[i+1].type == "DEF"):
-            func_def()
-            single_stm()
-            
-    def dec():
-        global i, tokenList
-        if self.current == "DT":
             self.advance()
-            list_()
-        else:
-            syntaxError("Syntax Error")
+            return False
+        if self.single_smt():
+            self.multi_statement()
+            return True
     
-
-    def list_():
-        global i, tokenList
+    def single_smt(self):
+        if self.current == 'EOF':
+            return False
+        elif self.current in [tt_key]:
+            self.dec()
+            self.single_smt()      
+        elif self.current == "ID":
+            self.assign_st()
+        elif self.current == "CF":
+            self.func_call()
+            self.single_stm()
+        elif self.current in ['INC', 'DEC']:
+            self.inc_dec_st()
+            self.if_else()
+            self.single_stm()
+        elif self.current == "IF":
+            self.if_else()
+            self.single_stm()
+        elif self.current in [tt_key]:
+            self.func_def()
+            self.single_stm()
+        
+    def dec(self):
+        if self.current in [tt_key]:
+            self.advance()
+            self.list_()
+        else:
+            raise SyntaxError("Syntax Error")
+    
+    def list_(self):
         if self.current == "SEMI":
             self.advance()
-            
-            dec()
-        elif self.current == "COM":
+            self.dec()
+        elif self.current == 'COM':
+            self.advance()
+            if self.current == 'ID':
+                self.advance()
+                self.list_() 
+        elif self.current in [tt_oper]:
+            self.exp()
+        else:
+             SyntaxError("Syntax Error")
+             
+    def if_else(self):
+        if self.current == 'IF':
+            self.advance()
+            if self.current == 'LP':
+                self.advance()
+                self.exp()
+                if self.current == 'RP':
+                    self.advance()
+                    if self.current == 'LC':
+                        self.advance()
+                        self.body()
+                        if self.current =='RC':
+                            self.advance()
+                            self.if_else_tail()
+        raise SyntaxError ("Syntax Error: Missing 'IF' in 'if' statement")
+        
+    def if_else_tail(self):
+        if self.current == 'ELIF':
+            self.advance()
+            if self.current == 'LP':
+                self.advance()
+                self.exp()
+                if self.current == 'RP':
+                    self.advance()
+                    if self.current == 'LC':
+                        self.advance()
+                        self.body()
+                        if self.current == 'RC':
+                            self.advance()
+                            self.if_else_tail()
+                    else:
+                        raise SyntaxError("Syntax Error: Missing ':' after condition in 'check' statement")
+                else:
+                    raise SyntaxError("Syntax Error: Missing ')' after condition in 'check' statement")
+                    
+        elif self.current == 'EL':
+            self.advance()
+            if self.current == 'LC':
+                self.advance()
+                self.body()
+                if self.current == 'RC':
+                    self.if_else_tail()
+            else:
+                raise SyntaxError ("Syntax Error: Missing ':' after 'else'")
+        else:
+            return True
+    def for_loop(self):
+        if self.current == 'FOR':
+            self.advance()
+            if self.current == 'LP':
+                self.advance()
+                self.for_loop_init()
+                if self.current == "SEMI":
+                    self.advance()
+                    self.cond()
+                    if self.current == "SEMI":
+                        self.advance()
+                        self.update()
+                    if self.current == "RP":
+                        self.advance()
+                        if self.current == "LB":
+                            self.advance()
+                            self.body()
+                            if self.current == "RB":
+                                self.advance()
+                                return True
+                            else:
+                                raise SyntaxError("Syntax Error: Missing '}'")
+                        else:
+                           raise SyntaxError("Syntax Error: Missing '{'")
+                    else:
+                       raise SyntaxError("Syntax Error: Missing ')'")
+                else:
+                   raise SyntaxError("Syntax Error: Missing ';'")
+            else:
+               raise SyntaxError("Syntax Error: Missing ';' after condition")
+        else:
+           raise SyntaxError("Syntax Error: Missing '('")
+                       
+    def for_loop_init(self):
+        if self.current == "DT":
             self.advance()
             if self.current == "ID":
                 self.advance()
-                list_()
-        elif self.current in ['DIV', 'MIN', 'SUB', 'ADD','RELATION']:
-            exp()
+                if self.current == "ASS":
+                    self.advance()
+                    if self.current in ['ID', 'INT', 'FT', 'STR', 'CR']:
+                        self.advance()
+                        return True
         else:
-            syntaxError("Syntax Error")
+            raise SyntaxError("Syntax Error")
+    def cond(self):
+        
+
+        if self.current in ["ID", "INT", "FT", "STR","CR","L_NOT"]: 
+        
+            self.exp()
             
-    def inc_dec_st():
+        else:
+            return True # Epsilon case
+        
+    def update(self):
+        
+        if self.current == "ID":
+            self.advance()
+            if self.current in ["INC", "DEC"]:
+                self.advance()
+                return True
+        else:
+            return True # Epsilon case
+        
+    def assign_st(self):
+        
+        if self.current == "ID":
+            self.advance()
+            self.assignop()
+            self.exp()
+        else:
+            raise SyntaxError("Syntax Error: Missing ID in assignment statement")
+
+    def assignop(self):
+        
+        if self.current in ["ASS", "ADD_ASS", "MINUS_ASS", "MULTI_ASS", "DIV_ASS", "MOD_ASS"]:
+            self.advance()
+        else:
+            raise SyntaxError("Syntax Error: Invalid assignment operator")
+            
+    def param(self):
+        self.exp()
+        self.param2()
+
+    def param2(self):
+        
+        if self.current == "COM":
+            self.advance()
+            self.exp()
+            self.param2()
+        else:
+            return True # Epsilon case
+    
+    def func_def(self):
+        
+        if (self.current == "DT" or self.current == "VD"):
+            self.advance()
+            if self.current == "DEF":
+                self.advance()
+                if self.current == "ID":
+                    self.advance()
+                    if self.current == "LP":
+                        self.advance()
+                        self.args()
+                        if self.current == "RP":
+                            self.advance()
+                            if self.current == "LB":
+                                self.advance()
+                                self.body()
+                                if self.current == "RB":
+                                    self.advance()
+                                    return True
+                                
+        raise SyntaxError("Syntax Error: Missing 'DEFINE' keyword in function definition")
+    
+    def args(self):
+        if self.current == "DT":
+            self.advance()
+            if self.current == "ID":
+                self.advance()
+                self.n_args()
+                
+                raise SyntaxError("Syntax Error: Missing data type in function arguments")
+    
+    def n_args(self):
+        if self.current == "SEPARATOR":
+            self.advance()
+            if self.current == "DT":
+                self.advance()
+                if self.current == "ID":
+                    self.advance()
+                    self.n_args()
+            raise SyntaxError("Syntax Error: Missing data type in function arguments")
+        else:
+            return True # Epsilon case
+        #raise SyntaxError("Syntax Error: Missing data type in function arguments")            ()
+    
+    def inc_dec_st(self):
         if self.current in ["ID", "STR", "CR", "FT", "INT"]:
             self.advance()
             self.exp()
@@ -92,20 +277,20 @@ class Parser:
         else:
             raise SyntaxError("Syntax Error")
     
-    def inc_dec_op():
+    def inc_dec_op(self):
         if self.current in ["INC", "DEC"]:
             self.advance()
         else:
             raise SyntaxError("Syntax Error")
     
-    def exp():
+    def exp(self):
         if self.and_op():
             return True
         if self.exp_or():
             return True
         return False
     
-    def exp_or():
+    def exp_or(self):
         if self.current() == "OR":
             self.advance()
             if self.and_op():
@@ -114,14 +299,14 @@ class Parser:
                 return True
         return False
     
-    def and_op():
-        if rel_op():
+    def and_op(self):
+        if self.rel_op():
             return True
-        if a_prime():
+        if self.a_prime():
             return True
         return False
 
-    def a_prime():
+    def a_prime(self):
         if self.current == "AND":
             self.advance()
             if self.rel_op():
@@ -130,14 +315,14 @@ class Parser:
                 return True
         return False
 
-    def rel_op():
+    def rel_op(self):
         if self.e():
             return True
         if self.rel_exp():
             return True
         return False
 
-    def rel_exp():
+    def rel_exp(self):
         if self.current in ["L_OR", "L_AND", "E", "NE", "INT"]:
             self.advance()
             if self.e():
@@ -146,15 +331,15 @@ class Parser:
                 return True
         return False            
     
-    def e():
-        if self.t():
+    def e(self):
+        if self.t(self):
             return True
-        if self.e_prime():
+        if self.e_prime(self):
             return True
         return False
 
-    def e_prime():
-        if self.current in ["ADD", "MIN"] or tokenList[i+1].type =="ASS":
+    def e_prime(self):
+        if self.current in ["ADD", "MIN"] or self.current == "ASS":
             self.advance()
             if self.t():
                 return True
@@ -162,14 +347,14 @@ class Parser:
                 return True
         return False
 
-    def t():
+    def t(self):
         if self.f():
             return True
         if self.t_prime():
             return True
         return False
 
-    def t_prime():
+    def t_prime(self):
         if self.current in ["MUL", "DIV", "MOD"]:
             self.advance()
             if self.f():
@@ -178,8 +363,7 @@ class Parser:
                 return True
         return False
     
-    def f():
-        global i, tokenList
+    def f(self):
         if self.current == "ID":
             self.advance()
             self.f_init()
@@ -195,7 +379,7 @@ class Parser:
             self.func_call()
         raise SyntaxError("Syntax Error: Expected ID or literal")
 
-    def f_init():
+    def f_init(self):
         if self.current == "LB":
             self.advance()
             self.exp()
@@ -210,7 +394,7 @@ class Parser:
         else:
             return True
         
-    def f_init_tail():
+    def f_init_tail(self):
         if self.current == "ID":
             self.advance()
             self.f_init()
@@ -223,7 +407,7 @@ class Parser:
         else:
             return True
         
-    def func_call():
+    def func_call(self):
         if self.current == "ID":
             self.advance()
             if self.current == "LP":
@@ -232,24 +416,16 @@ class Parser:
                 if self.current == "RP":
                     self.advance()
                     return True
-        raise SyntaxError(
-            "Syntax Error: Missing function name in function call")
+        raise SyntaxError("Syntax Error: Missing function name in function call")
         
-    def param():
+    def param(self):
         self.exp()
         self.param2()
 
-    def param2():   
+    def param2(self):   
         if self.current == "COM":
             self.advance()
             self.exp()
             self.param2()
         else:
             return True
-    
-except LookupError:
-    print("Tree Incomplete... Input Completely Parsed")
-    
-
-    
-            

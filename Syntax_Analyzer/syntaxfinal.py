@@ -11,19 +11,21 @@ class Parser:
         self.index += 1
         if self.index < len(self.tokens):
             self.current = self.tokens[self.index]
+            print("Current token:", self.tokens)
         else:
             self.current = None
         return self.current
  
     def structure(self):
         if self.current == 'EOF':
-            return True
+            return False
+        self.start()
         if self.multi_statement():
             self.structure()
         raise SyntaxError("Syntax Error: Invalid start rule")
     
     def start (self):
-        if self.current[0] == 'ST' and self.current[1] == 'SM':
+        if self.current == 'ST' and self.current == 'SM':
             self.advance()
             self.body()
             if self.current[0] == 'ED' and self.current[1] == 'EM':
@@ -429,3 +431,17 @@ class Parser:
             self.param2()
         else:
             return True
+        
+def test_parser(file_path):
+    with open(file_path, 'r') as file:
+        tokens = file.read().split(',')
+    
+    try:
+        parser = Parser(tokens)
+        parser.structure()
+        print("Parsing successful!")
+    except SyntaxError as e:
+        print("Parsing failed:", e)
+
+# Example usage:
+test_parser("lexer.txt")

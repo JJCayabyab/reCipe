@@ -3,8 +3,6 @@ tokenList = []
 errorAt = 0
 synError = ""
 
-
-
 def syntaxAnalyzer(tokens):
     global i, tokenList, errorAt, synError
         
@@ -30,6 +28,7 @@ def syntaxError(message='default'):
     if (i > errorAt):
         errorAt = i
     return False
+
 
 try:
 
@@ -298,7 +297,7 @@ try:
         else:
             return True # Epsilon case
         syntaxError("Syntax Error: Missing data type in function arguments")
-        
+    #     
     def assign_st():
         global i, tokenList
         if tokenList[i].type == "ID":

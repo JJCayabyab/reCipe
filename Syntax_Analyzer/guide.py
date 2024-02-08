@@ -3,8 +3,11 @@ tokenList = []
 errorAt = 0
 synError = ""
 
+
+
 def syntaxAnalyzer(tokens):
     global i, tokenList, errorAt, synError
+        
     i = 0
     errorAt = 0
     tokenList = tokens
@@ -20,6 +23,7 @@ def syntaxAnalyzer(tokens):
         print("\nTOKEN UNEXPECTED:\n\tValue:\t" + tokenList[errorAt].value + "\n\tType:\t" + tokenList[errorAt].type +
               "\n\tFile:\t\'.\\input.txt\' [@ line " + str(tokenList[errorAt].line) + "]\n\tToken:\t" + str(errorAt))
     return synError, result
+
 
 def syntaxError(message='default'):
     global i, tokenList, errorAt
@@ -38,41 +42,40 @@ try:
     
     def start():
         global i, tokenList
-        if tokenList[i].type == "ST" and tokenList[i+1] == "<<":
-            if tokenList[i].type == "END" and tokenList[i+1].type == ">>":
+        if tokenList[i].type == "ST" and tokenList[i+1] == "SM":
+            if tokenList[i].type == "ED" and tokenList[i+1].type == "EM":
                 i += 2
                 return True
-        else:
-            False
+        return False
     
     def body():
-        MST()
+        multi_stm()
         
-    def MST():
+    def multi_stm():
         if tokenList[i].type == 'EOF':
             return False
-        if SST():
-            MST()
+        if single_stm():
+            multi_stm()
             
-    def SST():
+    def single_stm():
         if tokenList[i].type == 'EOF':
             return False
         elif (tokenList[i].type == "DT" and tokenList[i+1].type != "DEFINE"):
             dec()
-            SST()            
+            single_stm()            
         elif tokenList[i].type == "ID":
             assign_st()
         elif tokenList[i].type == "CALL_FUNC":
             func_call()
-            SST()
-        elif tokenList[i].type == "INC_DEC":
+            single_stm()
+        elif tokenList[i].type in ["INC", "DEC"]:
             inc_dec_st()
-        elif tokenList[i].type == "WHEN":
-            when_otherwise()
-            SST()
+        elif tokenList[i].type == "IF":
+            if_else()
+            single_stm()
         elif (tokenList[i].type in ['DT', 'VOID'] and tokenList[i+1].type == "DEF"):
             func_def()
-            SST()
+            single_stm()
             
     def dec():
         global i, tokenList
@@ -99,37 +102,37 @@ try:
         else:
             syntaxError("Syntax Error")
             
-    def when_otherwise():
+    def if_else():
         global i, tokenList
-        if tokenList[i].type == "WHEN":
+        if tokenList[i].type == "IF":
             i += 1
-            if tokenList[i].type == "O_PARAM":
+            if tokenList[i].type == "LP":
                 i += 1
                 exp()
-                if tokenList[i].type == "C_PARAM":
+                if tokenList[i].type == "RP":
                     i += 1
-                    if tokenList[i].type == "O_BRACE":
+                    if tokenList[i].type == "LC":
                         i += 1
                         body()
-                        if tokenList[i].type == "C_BRACE":
+                        if tokenList[i].type == "RC":
                             i += 1
                             
                         if_else_tail()
-        syntaxError("Syntax Error: Missing 'WHEN' in 'when' statement")
+        syntaxError("Syntax Error: Missing 'IF' in 'if' statement")
 
     def if_else_tail():
         global i, tokenList
-        if tokenList[i].type == "CHECK":
+        if tokenList[i].type == "ELIF":
             i += 1
-            if tokenList[i].type == "O_PARAM":
+            if tokenList[i].type == "LP":
                 i += 1
                 exp()
-                if tokenList[i].type == "C_PARAM":
+                if tokenList[i].type == "RP":
                     i += 1
-                    if tokenList[i].type == "O_BRACE":
+                    if tokenList[i].type == "LC":
                         i += 1
                         body()
-                        if tokenList[i].type == "C_BRACE":
+                        if tokenList[i].type == "RC":
                             i += 1
                             if_else_tail()
                     else:
@@ -138,16 +141,16 @@ try:
                 else:
                     syntaxError(
                         "Syntax Error: Missing ')' after condition in 'check' statement")
-        elif tokenList[i].type == "OTHERWISE":
+        elif tokenList[i].type == "ELSE":
             i += 1
-            if tokenList[i].type == "O_BRACE":
+            if tokenList[i].type == "LC":
                 i += 1
                 body()
-                if tokenList[i].type == "C_BRACE":
+                if tokenList[i].type == "RC":
                     i += 1
                 if_else_tail()
             else:
-                syntaxError("Syntax Error: Missing ':' after 'otherwise'")
+                syntaxError("Syntax Error: Missing ':' after 'else'")
         else:
             return True # Epsilon case
                 
@@ -232,7 +235,7 @@ try:
 
     def assignop():
         global i, tokenList
-        if tokenList[i].type in ["ASSIGN", "COMBO_ASSIGN"]:
+        if tokenList[i].type in ["ASS", "ADD_ASS", "MINUS_ASS", "MULTI_ASS", "DIV_ASS", "MOD_ASS"]:
             i += 1
         else:
             syntaxError("Syntax Error: Invalid assignment operator")
@@ -322,24 +325,24 @@ try:
             syntaxError("Syntax Error: Invalid increment/decrement operator")
    
     def exp():
-        if a():
+        if and_op():
             return True
-        if exp_prime():
+        if exp_or():
             return True
         return False
 
-    def exp_prime():
+    def exp_or():
         global i, tokenList
         if tokenList[i].type == "OR":
             i += 1
-            if a():
+            if and_op():
                 return True
-            if exp_prime():
+            if exp_or():
                 return True
         return False
     
-    def a():
-        if r():
+    def and_op():
+        if rel_op():
             return True
         if a_prime():
             return True
@@ -349,26 +352,26 @@ try:
         global i, tokenList
         if tokenList[i].type == "AND":
             i += 1
-            if r():
+            if rel_op():
                 return True
             if a_prime():
                 return True
         return False
 
-    def r():
+    def rel_op():
         if e():
             return True
-        if r_prime():
+        if rel_exp():
             return True
         return False
 
-    def r_prime():
+    def rel_exp():
         global i, tokenList
-        if tokenList[i].type == "RELATION":
+        if tokenList[i].type in ["L_OR", "L_AND", "E", "NE", "INT"]:
             i += 1
             if e():
                 return True
-            if r_prime():
+            if rel_exp():
                 return True
         return False            
     
@@ -381,7 +384,7 @@ try:
 
     def e_prime():
         global i, tokenList
-        if tokenList[i].type == "PM" or tokenList[i+1].type =="ASSIGN":
+        if tokenList[i].type in ["ADD", "MIN"] or tokenList[i+1].type =="ASS":
             i += 1
             if t():
                 return True
@@ -398,7 +401,7 @@ try:
 
     def t_prime():
         global i, tokenList
-        if tokenList[i].type == "M_D_M":
+        if tokenList[i].type in ["MUL", "DIV", "MOD"]:
             i += 1
             if f():
                 return True
@@ -411,10 +414,10 @@ try:
         if tokenList[i].type == "ID":
             i += 1
             f_init()
-        elif tokenList[i].type in ["INT", "FLT", "STR", "CHAR"]:
+        elif tokenList[i].type in ["INT", "FT", "STR", "CR"]:
             i+=1
             return True
-        elif tokenList[i].type == "NOT":
+        elif tokenList[i].type == "L_NOT":
             i += 1
             if f():
                 return True
@@ -425,16 +428,16 @@ try:
 
     def f_init():
         global i, tokenList
-        if tokenList[i].type == "O_BRACK":
+        if tokenList[i].type == "LB":
             i += 1
             exp()
-            if tokenList[i].type == "C_BRACK":
+            if tokenList[i].type == "RB":
                 i += 1
                 f_init()
         elif tokenList[i].type == "ID":
             i += 1
             f_init()
-        elif tokenList[i].type == "INC_DEC":
+        elif tokenList[i].type in ["INC", "DEC"]:
             i += 1
         else:
             return True
@@ -443,10 +446,10 @@ try:
         if tokenList[i].type == "ID":
             i += 1
             f_init()
-        elif tokenList[i].type == "O_BRACK":
+        elif tokenList[i].type == "LB":
             i += 1
             exp()
-            if tokenList[i].type == "C_BRACK":
+            if tokenList[i].type == "RB":
                 i += 1
                 f_init()
         else:
@@ -456,10 +459,10 @@ try:
         global i, tokenList
         if tokenList[i].type == "ID":
             i += 1
-            if tokenList[i].type == "O_PARAM":
+            if tokenList[i].type == "LP":
                 i += 1
                 param()
-                if tokenList[i].type == "C_PARAM":
+                if tokenList[i].type == "RP":
                     i += 1
                     return True
         syntaxError(
@@ -480,4 +483,6 @@ try:
     
 except LookupError:
     print("Tree Incomplete... Input Completely Parsed")
+    
 
+    

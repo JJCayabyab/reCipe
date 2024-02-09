@@ -2,9 +2,11 @@ from token_dict import KD, OD, DD, RD
 
 KEYWORDS = frozenset(["INT", "BOOL", "CHAR", "DOUBLE", "CONST", "IF", "ELSE", 
                           "FOR","STR", "STRUCT", "FLOAT", "DO", "WHILE", "BREAK", 
-                          "FALSE", "CONT", "TRUE", "PICK", "CASE", "START", "END"])
+                          "FALSE", "CONT", "TRUE", "PICK", "CASE", "START", "END",
+                          "DISPLAY", "GET", "QUOTIENTREM", "UNITCONVERT","TABLE", 
+                          "CREATETABLE", "SETCELLVALUE", "DISPLAYTABLE", "FREETABLE"])
 OPERATORS = frozenset({ "+", "-", "*", "/", "%", "=", "<", ">", "!"})
-DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":", "<<", ">>"])
+DELIMITERS = frozenset(["[", "]", "(", ")", "{", "}", " ", "//", "#", "}", "'", '"', ";", ":", "<<", ">>", "@"])
 NUMERALS = frozenset("0123456789")
 IDENTIFIERS = set()
 FLOAT_VAL = 7
@@ -14,21 +16,20 @@ token_d = {**KD, **OD, **DD, **RD}
 
 class LexicalAnalyzer:
    
-    
     @staticmethod
     def is_valid_identifier(identifier):
         # Rules for a valid identifier
         return (
             identifier.isidentifier()
             and (identifier[0].isalpha() or identifier[0] == '_')
-            and identifier.lower() not in KEYWORDS  # Convert to lowercase for case-insensitivity
+            and identifier.lower() not in KEYWORDS  
             and ' ' not in identifier
             and len(identifier) <= ID_VAL
             and all(char.isalnum() or char in ['_'] for char in identifier)
         )
 
     @staticmethod
-    def tokenize_and_categorize(input_program):
+    def tokenize_and_categorize(input_program): # tokenize the input code
         lexeme_token_pairs = []
         current_pos = 0
         input_length = len(input_program)
@@ -45,7 +46,7 @@ class LexicalAnalyzer:
             if input_program[current_pos:current_pos + 2] == "//":
                 comment_end = input_program.find('\n', current_pos)
                 if comment_end == -1:
-                    comment_end = input_length  # Comment reaches the end of the input
+                    comment_end = input_length  
                 lexeme = input_program[current_pos:comment_end]
                 lexeme_token_pairs.append((lexeme, "SC"))
                 current_pos = comment_end
@@ -65,24 +66,20 @@ class LexicalAnalyzer:
                 lexeme_token_pairs.append((lexeme, "MC"))
                 current_pos = comment_end + 1
                 continue
-
-        
+            
+            # Handle character literal
             elif char == "'":
-                # Handle single quotation character literal
-                lexeme = char  # Start with the opening single quotation mark
+                lexeme = char  
                 current_pos += 1
 
-                # Check if there is a character inside the single quotes
                 if current_pos < input_length and input_program[current_pos] != "'":
                     lexeme += input_program[current_pos]
                     current_pos += 1
 
-                    # Check if the lexeme ends with a closing single quotation mark
                     if current_pos < input_length and input_program[current_pos] == "'":
                         lexeme += "'"
                         current_pos += 1
 
-                        # Check if the lexeme contains exactly 3 characters (including both quotation marks)
                         if len(lexeme) == 3:
                             lexeme_token_pairs.append((lexeme, "CL"))
                         else:
@@ -91,21 +88,30 @@ class LexicalAnalyzer:
                         lexeme_token_pairs.append((lexeme, "INVALID"))
                 else:
                     lexeme_token_pairs.append((lexeme, "INVALID"))
-
+                    
+            # Handles string literal 
             elif char == '"':
-                # Handle double quotation string literal
-                lexeme = char  # Start with the opening double quotation mark
+                lexeme = char 
                 current_pos += 1
                 while current_pos < input_length and input_program[current_pos] != '"':
                     lexeme += input_program[current_pos]
+                    if input_program[current_pos:current_pos + 2] == "\\n":
+                        lexeme_token_pairs.append(("\\n", "E_N")) 
+                        current_pos += 1
+                    elif input_program[current_pos:current_pos + 2] == "\\t":
+                        lexeme_token_pairs.append(("\\t", "E_T"))  #
+                        current_pos += 1  
+                    elif input_program[current_pos] == '@':
+                        lexeme_token_pairs.append(('@', "PH"))  
                     current_pos += 1
 
                 if current_pos < input_length and input_program[current_pos] == '"':
-                    lexeme += '"'  # Include the closing double quotation mark in the lexeme
+                    lexeme += '"'  
                     lexeme_token_pairs.append((lexeme, "SL"))
-                    current_pos += 1  # Move past the closing double quotation mark
+                    current_pos += 1  
                 else:
                     lexeme_token_pairs.append((lexeme, "INVALID"))
+
             
             # check keywords
             elif char.isalpha() or char == '_':
@@ -163,19 +169,17 @@ class LexicalAnalyzer:
 
                 # Check if lexeme is in the dictionary, otherwise mark it as "INVALID"
                 token = token_d.get(lexeme, "INVALID")
-
                 lexeme_token_pairs.append((lexeme, token))
 
             else:
                 found_lexeme = False
-
                 for lexeme, token in token_d.items():
                     if input_program.startswith(lexeme, current_pos):
                         lexeme_token_pairs.append((lexeme, token))
                         current_pos += len(lexeme)
                         found_lexeme = True
                         break
-
+                    
                 if not found_lexeme:
                     # If the character is not a valid lexeme, consider it as an invalid token
                     invalid_token = input_program[current_pos]
@@ -192,5 +196,4 @@ class LexicalAnalyzer:
 
                     current_pos += 1  # Move to the next character to avoid an infinite loop
 
-        # Move the return statement outside the while loop
         return lexeme_token_pairs

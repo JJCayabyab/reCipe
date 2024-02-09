@@ -24,18 +24,12 @@ def save_file(file_path, content):
         print(f"Failed to save file: {e}")
         return False
 
-def analyze_code(input_program):
+def analyzecode(input_program):
     lexer = LexicalAnalyzer()
     tokens = lexer.tokenize_and_categorize(input_program)
-    
-    # Use a generator expression to yield formatted tokens
     formatted_tokens = (token for _, token in tokens)
-    
-    # Join the formatted tokens
     result = ",".join(formatted_tokens)
-
     return result
-
 
 def download_output(file_name, output_content):
     if not output_content:
@@ -52,11 +46,11 @@ def download_output(file_name, output_content):
         print(f"Failed to save output: {e}")
         return False
 
-# Specify the directory path
+
 directory_path = r"C:\Users\Josh\Documents\VSCODE python\PARSER-FINAL"
 
 if os.path.exists(directory_path):
-    # Loop through files with ".ck" extension in the directory
+
     for filename in os.listdir(directory_path):
         if filename.endswith(".up"):
             file_path = os.path.join(directory_path, filename)
@@ -65,8 +59,8 @@ if os.path.exists(directory_path):
             content = open_file(file_path)
             
             if content is not None:
-                analyzed_result = analyze_code(content)
-                # Use a fixed output file name "lexer.txt" for each input file
+                analyzed_result = analyzecode(content)
+          
                 output_file_name = "lexer.txt"
                 download_output(output_file_name, analyzed_result)
 else:

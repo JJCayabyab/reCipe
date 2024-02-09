@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+
+</head>
+
+<body>
+  
+ 
+        
+        
+        <div class='title'>
+            <p class="start">START<span class="up">UP</span></p>
+        </div>
+
+        <div class="all-btn">
+            <div class="btn-container">
+                <button class="play-btn" name="play-btn">
+                    <img src="/static/play.png">
+                </button>
+                <button name="clear-btn" class="clear-btn">
+                    <img src="/static/clear.png">
+                </button>
+                <button name="open-btn" class="open-btn">
+                    <img src="/static/open_file.png">
+                </button>
+            </div>
+        </div>
+
+        <div id="container" class="code-container">
+            <div id="line-numbers" class="code__lines"></div>
+            <textarea id="textarea" class="container__textarea" name="textarea" placeholder="Enter your code here"
+            spellcheck="false"></textarea>
+
+        </div>
+
+        <div class="syntax-analyzer"></div>
+
+
+
+
+    <script src="/static/lines.js"></script>
+
+    <script src="/static/index.js"></script>
+</body>
+
+</html>
